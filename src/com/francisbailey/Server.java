@@ -124,7 +124,7 @@ public class Server implements ConnectionDelegate, ServerManager {
     public synchronized Connection findConnectionByNick(String nick) {
 
         for (Connection c: this.registeredConnections) {
-            System.out.println(c.getClientInfo().getNick());
+
             if (c.getClientInfo().getNick().equals(nick)) {
                 return c;
             }
