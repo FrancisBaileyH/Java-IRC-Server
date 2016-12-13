@@ -14,9 +14,6 @@ public class USER implements Executable {
         if (c.isRegistered()) {
             c.send(new ServerMessage(serverName, ServerMessage.ERR_ALREADYREGISTERED));
         }
-        else if (cm.getParameterCount() < 4){
-            c.send(new ServerMessage(serverName, ServerMessage.ERR_NEEDMOREPARAMS));
-        }
         else {
 
             String nick = c.getClientInfo().getNick();
@@ -32,6 +29,16 @@ public class USER implements Executable {
                 this.sendRegistrationAcknowledgement(c, instance);
             }
         }
+    }
+
+    @Override
+    public int getMinimumParams() {
+        return 4;
+    }
+
+    @Override
+    public Boolean canExecuteUnregistered() {
+        return true;
     }
 
 

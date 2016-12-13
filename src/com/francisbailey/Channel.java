@@ -1,10 +1,11 @@
 package com.francisbailey;
 
 import java.util.ArrayList;
-import java.util.Collection;
+
 
 
 /**
+ * @TODO FIX .removes and .contains not working properly
  * Created by fbailey on 01/12/16.
  */
 public class Channel {
@@ -39,17 +40,6 @@ public class Channel {
         }
     }
 
-    /**
-     * @return
-     */
-    public String getTopic() {
-        return this.topic;
-    }
-
-
-    public String getName() {
-        return this.name;
-    }
 
     /**
      * Broadcast a part message when a user leaves the channel
@@ -106,6 +96,14 @@ public class Channel {
     public synchronized Boolean hasUser(Connection c) {
 
         return this.users.contains(c);
+    }
+
+
+    public String getTopic() {
+        return this.topic;
+    }
+    public String getName() {
+        return this.name;
     }
 
 

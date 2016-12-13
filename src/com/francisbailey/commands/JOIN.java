@@ -18,12 +18,7 @@ public class JOIN implements Executable {
         String message;
         String replyCode;
 
-        if (cm.getParameterCount() < 1) {
-            message = nick;
-            replyCode = ServerMessage.ERR_NEEDMOREPARAMS;
-            c.send(new ServerMessage(instance.getName(), replyCode, message));
-        }
-        else if (!chanManager.hasChannel(channel)) {
+        if (!chanManager.hasChannel(channel)) {
             message = nick + " " + channel + " :No such channel";
             replyCode = ServerMessage.ERR_NOSUCHCHANNEL;
             c.send(new ServerMessage(instance.getName(), replyCode, message));
@@ -35,6 +30,18 @@ public class JOIN implements Executable {
             c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_TOPIC, nick + " " + channel + " :" + chan.getTopic()));
             this.sendChannelUsers(c, chan, instance.getName());
         }
+    }
+
+
+    @Override
+    public int getMinimumParams() {
+        return 1;
+    }
+
+
+    @Override
+    public Boolean canExecuteUnregistered() {
+        return false;
     }
 
 

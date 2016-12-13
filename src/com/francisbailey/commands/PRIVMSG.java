@@ -2,7 +2,6 @@ package com.francisbailey.commands;
 
 import com.francisbailey.*;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -14,27 +13,10 @@ public class PRIVMSG implements Executable {
     @Override
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
-        String nick = c.getClientInfo().getNick();
+        String target = cm.getParameter(0);
+        String message = cm.getParameter(1);
 
-        if (cm.getParameterCount() < 2) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick));
-        }
-        else {
-            messageTarget(cm.getParameter(0), cm.getParameter(1), c, instance);
-        }
-    }
-
-
-    /**
-     * Attempt to send the privmsg to the specified target
-     * @param message
-     * @param target
-     * @param c
-     * @param instance
-     */
-    private void messageTarget(String target, String message, Connection c, ServerManager instance) {
-
-         // target is a channel, check that the channel exists
+        // target is a channel, check that the channel exists
         if (instance.getChannelManager().isChannel(target)) {
 
             Channel chan = instance.getChannelManager().getChannel(target);
@@ -47,6 +29,19 @@ public class PRIVMSG implements Executable {
             Connection targetCon = instance.findConnectionByNick(target);
             sendPrivateMessage(c, targetCon, instance, message);
         }
+
+    }
+
+
+    @Override
+    public int getMinimumParams() {
+        return 2;
+    }
+
+
+    @Override
+    public Boolean canExecuteUnregistered() {
+        return false;
     }
 
 

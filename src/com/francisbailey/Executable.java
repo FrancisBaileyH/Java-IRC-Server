@@ -6,5 +6,6 @@ package com.francisbailey;
 public interface Executable {
 
     public void execute(Connection c, ClientMessage cm, ServerManager instance);
-
+    public int getMinimumParams();
+    public Boolean canExecuteUnregistered();
 }

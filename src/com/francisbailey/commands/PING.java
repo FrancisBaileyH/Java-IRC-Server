@@ -13,14 +13,23 @@ public class PING implements Executable {
 
         String serverName = instance.getName();
 
-        if (cm.getParameterCount() < 1) {
-            c.send(new ServerMessage(serverName, ServerMessage.ERR_NEEDMOREPARAMS));
-        }
-        else if (cm.getParameterCount() == 1) {
+       if (cm.getParameterCount() < 2) {
             c.send(new ServerMessage(serverName, ServerMessage.RPL_PONG, cm.getParameter(0)));
         }
         else {
             c.send(new ServerMessage(serverName, ServerMessage.ERR_NOSUCHSERVER, cm.getParameter(0) + " " + cm.getParameter(1)));
         }
+    }
+
+
+    @Override
+    public int getMinimumParams() {
+        return 1;
+    }
+
+
+    @Override
+    public Boolean canExecuteUnregistered() {
+        return false;
     }
 }

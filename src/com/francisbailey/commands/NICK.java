@@ -16,6 +16,7 @@ public class NICK implements Executable {
     private ClientMessage cm;
 
 
+    @Override
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
         this.c = c;
@@ -24,33 +25,39 @@ public class NICK implements Executable {
 
         String serverName = instance.getName();
 
-        if (cm.getParameterCount() < 1) {
-            c.send(new ServerMessage(serverName, ServerMessage.ERR_NEEDMOREPARAMS));
-        }
-        else {
+        String nick = cm.getParameter(0);
+        String replyCode = nickIsValid(nick);
 
-            String nick = cm.getParameter(0);
-            String replyCode = nickIsValid(nick);
+        if (replyCode != null) {
 
-            if (replyCode != null) {
+            String message = "";
 
-                String message = "";
-
-                if (c.isRegistered()) {
-                    message = c.getClientInfo().getNick();
-                }
-                else {
-                    message = "*";
-                }
-
-                message = message + " " + nick + " :Nickname already in use";
-
-                c.send(new ServerMessage(serverName, replyCode, message));
+            if (c.isRegistered()) {
+                message = c.getClientInfo().getNick();
             }
             else {
-                setNickChange(nick);
+                message = "*";
             }
+
+            message = message + " " + nick + " :Nickname already in use";
+
+            c.send(new ServerMessage(serverName, replyCode, message));
         }
+        else {
+            setNickChange(nick);
+        }
+    }
+
+
+    @Override
+    public int getMinimumParams() {
+        return 1;
+    }
+
+
+    @Override
+    public Boolean canExecuteUnregistered() {
+        return true;
     }
 
 

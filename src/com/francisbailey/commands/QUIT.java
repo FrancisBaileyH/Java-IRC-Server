@@ -32,4 +32,16 @@ public class QUIT implements Executable {
 
         instance.closeConnection(c);
     }
+
+
+    @Override
+    public int getMinimumParams() {
+        return 0;
+    }
+
+
+    @Override
+    public Boolean canExecuteUnregistered() {
+        return false;
+    }
 }

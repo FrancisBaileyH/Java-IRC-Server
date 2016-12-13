@@ -23,6 +23,19 @@ public class PART implements Executable {
         }
     }
 
+
+    @Override
+    public int getMinimumParams() {
+        return 1;
+    }
+
+
+    @Override
+    public Boolean canExecuteUnregistered() {
+        return false;
+    }
+
+
     private void messageTarget(Connection c, ClientMessage cm, ServerManager instance) {
 
         String target = cm.getParameter(0);

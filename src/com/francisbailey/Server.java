@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
+
 
 /**
  * Created by fbailey on 02/11/16.
@@ -80,11 +80,19 @@ public class Server implements ConnectionDelegate, ServerManager {
             ClientMessage cm = this.parser.parse(command);
             System.out.println(cm.getMessage());
             Executable e = this.cf.build(cm);
-            e.execute(c, cm, this);
+
+            if (cm.getParameterCount() < e.getMinimumParams()) {
+                c.send(new ServerMessage(this.name, ServerMessage.ERR_NEEDMOREPARAMS, cm.getCommand() + "Not enough parameters"));
+            }
+            else if (!c.isRegistered() && !e.canExecuteUnregistered()) {
+                c.send(new ServerMessage(this.name, ServerMessage.ERR_NOTREGISTERED, ""));
+            }
+            else {
+                e.execute(c, cm, this);
+            }
         }
         catch (MissingCommandParametersException e) {
-            // send error to client
-            e.printStackTrace();
+            c.send(new ServerMessage(this.name, ServerMessage.ERR_NEEDMOREPARAMS, "Not enough parameters"));
         }
         catch (InvalidCommandException e) {
             String message = "";
@@ -92,7 +100,7 @@ public class Server implements ConnectionDelegate, ServerManager {
             if (c.isRegistered()) {
                 message = c.getClientInfo().getHostmask();
             }
-            c.send(new ServerMessage(this.config.serverName, ServerMessage.ERR_UNKNOWNCOMMAND, message));
+            c.send(new ServerMessage(this.name, ServerMessage.ERR_UNKNOWNCOMMAND, message));
         }
     }
 
