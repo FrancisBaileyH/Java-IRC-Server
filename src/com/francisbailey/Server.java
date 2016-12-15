@@ -117,12 +117,19 @@ public class Server implements ConnectionDelegate, ServerManager {
     }
 
 
+    /**
+     * Add the user to the registered connections list and
+     * set any registration info to the connection.
+     * @param c
+     * @param clientInfo
+     */
     public synchronized void registerConnection(Connection c, Client clientInfo) {
 
         c.register(clientInfo);
         this.registeredConnections.add(c);
         this.connections.remove(c);
     }
+
 
     /**
      * See if a registered connection exists with a given nick
@@ -141,16 +148,18 @@ public class Server implements ConnectionDelegate, ServerManager {
         return null;
     }
 
+
     /**
-     *
+     * Get the configuration object
      * @return
      */
     public Config getConfig() {
         return this.config;
     }
 
+
     /**
-     *
+     * Get the channel manager.
      * @return
      */
     public ChannelManager getChannelManager() {
@@ -163,6 +172,10 @@ public class Server implements ConnectionDelegate, ServerManager {
     }
 
 
+    /**
+     * Send a message to all registered connections.
+     * @param sm
+     */
     public void broadcast(ServerMessage sm) {
 
         for (Connection c: this.registeredConnections) {

@@ -49,8 +49,13 @@ public class PART implements Executable {
             else {
                 Channel chan = instance.getChannelManager().getChannel(target);
 
-                String message = cm.getParameterCount() > 1 ? cm.getParameter(1) : null;
-                chan.part(c, message);
+                if (!chan.hasUser(c)) {
+                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOTONCHANNEL,  c.getClientInfo().getNick()));
+                }
+                else {
+                    String message = cm.getParameterCount() > 1 ? cm.getParameter(1) : null;
+                    chan.part(c, message);
+                }
             }
         }
     }

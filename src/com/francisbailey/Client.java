@@ -9,6 +9,7 @@ public class Client {
     private String username;
     private String hostName;
     private String realName;
+    private UserMode userMode;
 
 
     public Client(String nick, String username, String hostName, String realName) {
@@ -17,6 +18,7 @@ public class Client {
         this.username = username;
         this.hostName = hostName;
         this.realName = realName;
+        this.userMode = new UserMode();
     }
 
 
@@ -64,5 +66,10 @@ public class Client {
     public String getRealname() {
         return this.realName;
     }
+
+    public UserMode getMode() {
+        return this.userMode;
+    }
+
 
 }

@@ -7,6 +7,10 @@ import java.util.ArrayList;
 
 /**
  * Created by fbailey on 16/11/16.
+ *
+ * @TODO generate new unique id in place of nickname. That way,
+ * at connection registration if nick is taken unique id takes its place
+ * and then client can automatically set new nick if need be.
  */
 public class NICK implements Executable {
 
