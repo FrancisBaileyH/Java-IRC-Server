@@ -62,6 +62,8 @@ public class CommandParser {
             parameters.add(components[i]);
         }
 
+        command = command.toUpperCase();
+
         return new ClientMessage(command, commandMessage, parameters, prefix);
     }
 

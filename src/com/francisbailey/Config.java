@@ -12,6 +12,7 @@ public class Config {
 
     public String serverName = "cosc318server";
     public String welcomeMessage = "Welcome to " + serverName + "!";
+    public String motd = "\n\n/===================\\\n|  JAVA IRC Server  |\n\\===================/\n\n";
     public String[] channels = {"#general", "#java", "#cosc318", "#networking"};
 
 
