@@ -29,7 +29,7 @@ public class MODE implements Executable {
             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_USERSDONTMATCH, ": Can't change mode for other users"));
         }
         else if (cm.getParameterCount() < 2) {
-            this.sendUsermode(c);
+            this.sendUsermode(c, instance);
         }
         else {
 
@@ -49,7 +49,7 @@ public class MODE implements Executable {
                     this.handleAddMode(flag);
                 }
 
-                this.sendUsermode(c);
+                this.sendUsermode(c, instance);
             }
         }
     }
@@ -59,7 +59,7 @@ public class MODE implements Executable {
      * Notify the user of their current user mode
      * @param c
      */
-    private void sendUsermode(Connection c) {
+    public void sendUsermode(Connection c, ServerManager instance) {
 
         String nick = c.getClientInfo().getNick();
         String modeis = c.getClientInfo().getMode().toString();
