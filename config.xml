@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server>
+    <name>irc.javaircserver.com</name>
+    <motd>
+
+        /===================\
+        |  JAVA IRC Server  |
+        \===================/
+
+    </motd>
+    <welcome-message>Welcome to irc.javaircserver.com</welcome-message>
+
+    <operators>
+        <operator>
+            <username>francis</username>
+            <password>Password123</password>
+        </operator>
+    </operators>
+
+    <channels>
+        <channel>
+            <name>#general</name>
+            <topic>A place for general discussion</topic>
+            <modes></modes>
+          </channel>
+        <channel>
+            <name>#java</name>
+            <topic>A place for general discussion about Java</topic>
+            <modes></modes>
+        </channel>
+        <channel>
+            <name>#help</name>
+            <topic>A place for help on any topic</topic>
+            <modes></modes>
+        </channel>
+    </channels>
+</server>

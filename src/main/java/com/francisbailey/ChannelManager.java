@@ -1,8 +1,11 @@
 package com.francisbailey;
 
+import org.apache.commons.configuration2.HierarchicalConfiguration;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by fbailey on 01/12/16.
@@ -12,21 +15,28 @@ public class ChannelManager {
     private HashMap<String, Channel> channels;
 
     /**
-     * @TODO - dynamic channel topics
-     * @param channelNames
+     * Loop through the configuration and generate channels.
+     * @param channels
      */
-    public ChannelManager(String[] channelNames) {
+    public ChannelManager(List<HierarchicalConfiguration> channels) {
 
         this.channels = new HashMap<>();
 
-        for (String chanName: channelNames) {
+        for (HierarchicalConfiguration channel: channels) {
 
-            Channel c = new Channel(chanName, "Test topic");
+            String chanName = channel.getString("name");
+            String topic = channel.getString("topic");
+            Channel c = new Channel(chanName, topic);
             this.channels.put(chanName, c);
         }
     }
 
 
+    /**
+     * Check if target is an existing channel
+     * @param target
+     * @return
+     */
     public Boolean isChannel(String target) {
 
         return target.startsWith("#") && channels.containsKey(target);
@@ -34,7 +44,7 @@ public class ChannelManager {
 
 
     /**
-     *
+     * Retrieve channel object by name.
      * @param channel
      * @return
      */
@@ -64,7 +74,7 @@ public class ChannelManager {
 
 
     /**
-     *
+     * Retrieve all channel objects.
      * @return
      */
     public Collection<Channel> getChannels() {
@@ -74,7 +84,7 @@ public class ChannelManager {
 
 
     /**
-     *
+     * Check if a channel exists.
      * @param chanName
      * @return
      */

@@ -13,7 +13,7 @@ public class Channel {
 
     private String topic;
     private String name;
-    private ArrayList<Connection> users;
+    private ArrayList<com.francisbailey.Connection> users;
 
 
     public Channel(String name, String topic) {
@@ -35,7 +35,7 @@ public class Channel {
             this.users.add(c);
 
             String hostmask = c.getClientInfo().getHostmask();
-            ServerMessage sm = new ServerMessage(hostmask, ServerMessage.RPL_JOIN, this.name);
+            ServerMessage sm = new ServerMessage(hostmask, com.francisbailey.ServerMessage.RPL_JOIN, this.name);
             this.broadcast(sm);
         }
     }

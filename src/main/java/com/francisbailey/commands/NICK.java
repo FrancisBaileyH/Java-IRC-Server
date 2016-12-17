@@ -20,7 +20,7 @@ public class NICK implements Executable {
     private ClientMessage cm;
 
 
-    @Override
+
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
         this.c = c;
@@ -53,13 +53,13 @@ public class NICK implements Executable {
     }
 
 
-    @Override
+
     public int getMinimumParams() {
         return 1;
     }
 
 
-    @Override
+
     public Boolean canExecuteUnregistered() {
         return true;
     }

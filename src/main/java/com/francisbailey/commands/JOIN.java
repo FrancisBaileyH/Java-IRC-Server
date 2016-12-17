@@ -9,7 +9,7 @@ import java.util.ArrayList;
  */
 public class JOIN implements Executable {
 
-    @Override
+
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
         String channel = cm.getParameter(0);
@@ -33,13 +33,11 @@ public class JOIN implements Executable {
     }
 
 
-    @Override
     public int getMinimumParams() {
         return 1;
     }
 
 
-    @Override
     public Boolean canExecuteUnregistered() {
         return false;
     }

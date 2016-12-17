@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class PRIVMSG implements Executable {
 
 
-    @Override
+
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
         String target = cm.getParameter(0);
@@ -33,13 +33,13 @@ public class PRIVMSG implements Executable {
     }
 
 
-    @Override
+
     public int getMinimumParams() {
         return 2;
     }
 
 
-    @Override
+
     public Boolean canExecuteUnregistered() {
         return false;
     }

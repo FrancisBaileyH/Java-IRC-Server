@@ -8,7 +8,7 @@ import com.francisbailey.*;
 public class PING implements Executable {
 
 
-    @Override
+
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
         String serverName = instance.getName();
@@ -22,13 +22,13 @@ public class PING implements Executable {
     }
 
 
-    @Override
+
     public int getMinimumParams() {
         return 1;
     }
 
 
-    @Override
+
     public Boolean canExecuteUnregistered() {
         return false;
     }

@@ -7,7 +7,7 @@ import com.francisbailey.*;
  */
 public class WHO implements Executable {
 
-    @Override
+
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
         Channel chan = instance.getChannelManager().getChannel(cm.getParameter(0));
@@ -32,13 +32,13 @@ public class WHO implements Executable {
     }
 
 
-    @Override
+
     public int getMinimumParams() {
         return 1;
     }
 
 
-    @Override
+
     public Boolean canExecuteUnregistered() {
         return false;
     }

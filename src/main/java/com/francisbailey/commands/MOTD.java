@@ -8,7 +8,7 @@ import com.francisbailey.*;
 public class MOTD implements Executable {
 
 
-    @Override
+
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
         String motd = instance.getConfig().motd;
@@ -32,12 +32,12 @@ public class MOTD implements Executable {
 
     }
 
-    @Override
+
     public int getMinimumParams() {
         return 0;
     }
 
-    @Override
+
     public Boolean canExecuteUnregistered() {
         return false;
     }

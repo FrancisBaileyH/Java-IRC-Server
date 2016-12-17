@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class QUIT implements Executable {
 
 
-    @Override
+
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
         ArrayList<Channel> channels = instance.getChannelManager().getChannelsByUser(c);
@@ -34,13 +34,13 @@ public class QUIT implements Executable {
     }
 
 
-    @Override
+
     public int getMinimumParams() {
         return 0;
     }
 
 
-    @Override
+
     public Boolean canExecuteUnregistered() {
         return false;
     }
