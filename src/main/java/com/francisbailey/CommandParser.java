@@ -35,7 +35,7 @@ public class CommandParser {
 
         // Guard for messages that are missing the minimum
         // number of parameters
-        if (components.length < 2) {
+        if (components.length < 1) {
             throw new MissingCommandParametersException();
         }
 

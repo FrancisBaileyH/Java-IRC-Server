@@ -117,6 +117,12 @@ public class Channel {
     }
 
 
+    /**
+     * Broadcast message to all users on channel except
+     * those in the exclusion list.
+     * @param sm
+     * @param exclude
+     */
     public synchronized void broadcast(ServerMessage sm, ArrayList<Connection> exclude) {
 
         for (Connection c: this.users) {

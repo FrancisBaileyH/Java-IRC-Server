@@ -82,7 +82,7 @@ public class Server implements ConnectionDelegate, ServerManager {
             Executable e = this.cf.build(cm);
 
             if (cm.getParameterCount() < e.getMinimumParams()) {
-                c.send(new ServerMessage(this.name, ServerMessage.ERR_NEEDMOREPARAMS, cm.getCommand() + "Not enough parameters"));
+                c.send(new ServerMessage(this.name, ServerMessage.ERR_NEEDMOREPARAMS, cm.getCommand() + " :Not enough parameters"));
             }
             else if (!c.isRegistered() && !e.canExecuteUnregistered()) {
                 c.send(new ServerMessage(this.name, ServerMessage.ERR_NOTREGISTERED, ""));
@@ -92,7 +92,7 @@ public class Server implements ConnectionDelegate, ServerManager {
             }
         }
         catch (MissingCommandParametersException e) {
-            c.send(new ServerMessage(this.name, ServerMessage.ERR_NEEDMOREPARAMS, "Not enough parameters"));
+            c.send(new ServerMessage(this.name, ServerMessage.ERR_NEEDMOREPARAMS, ":Not enough parameters"));
         }
         catch (InvalidCommandException e) {
             String message = "";
