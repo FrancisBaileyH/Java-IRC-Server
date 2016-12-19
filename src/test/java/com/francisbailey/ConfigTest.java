@@ -4,7 +4,6 @@ import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.junit.Test;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.*;

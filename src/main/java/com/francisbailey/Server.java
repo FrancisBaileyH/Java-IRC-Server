@@ -167,6 +167,10 @@ public class Server implements ConnectionDelegate, ServerManager {
     }
 
 
+    /**
+     * Retrieve the server name as defined in the config.
+     * @return
+     */
     public String getName() {
         return this.name;
     }
