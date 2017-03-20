@@ -1,5 +1,7 @@
 package com.francisbailey;
 
+import com.francisbailey.irc.Config;
+import com.francisbailey.irc.XMLConfigurationReader;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.junit.Test;
 

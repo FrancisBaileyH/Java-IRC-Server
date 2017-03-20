@@ -5,14 +5,14 @@ Work in progress IRC server
 
 ```
 cc /path/to/src
-javac -sourcepath . com/francisbailey/Main.java
+javac -sourcepath . com/francisbailey/irc/Main.java
 ```
 
 ## Running
 
 ```
 cd /path/to/src
-java com.francisbailey.Main
+java com.francisbailey.irc.Main
 ```
 
 Now you can simply connect to localhost on port 6667 with your irc client.
