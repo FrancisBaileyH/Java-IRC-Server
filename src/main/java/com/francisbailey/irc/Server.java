@@ -56,7 +56,7 @@ public class Server implements ConnectionDelegate, ServerManager {
             while (true) {
 
                 Socket s = this.socket.accept();
-                Connection c = new Connection(s, this);
+                TCPConnection c = new TCPConnection(s, this);
 
                 this.connections.add(c);
                 Thread t = new Thread(c);
