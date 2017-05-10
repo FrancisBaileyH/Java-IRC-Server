@@ -127,7 +127,7 @@ public class USERMODETest extends CommandTest {
         userA.addMode("r");
         String userANick = userA.getClientInfo().getNick();
 
-        ClientMessage cm = this.cp.parse("MODE " + userANick + "-r");
+        ClientMessage cm = this.cp.parse("MODE " + userANick + " -r");
 
         Executable exe = new USERMODE();
         exe.execute(userA, cm, this.sm);
