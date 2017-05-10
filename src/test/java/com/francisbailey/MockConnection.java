@@ -10,19 +10,19 @@ import java.util.ArrayList;
 /**
  * Created by fbailey on 05/05/17.
  */
-class MockConnection implements Connection {
+public class MockConnection implements Connection {
 
     private ArrayList<SendableMessage> outputBuffer;
     private Client clientInfo;
     private Boolean registered;
 
 
-    MockConnection() {
+    public MockConnection() {
         this.outputBuffer = new ArrayList<>();
     }
 
 
-    String getLastOutput() {
+    public String getLastOutput() {
 
         int size = this.outputBuffer.size();
 

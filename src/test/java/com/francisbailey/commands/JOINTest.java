@@ -1,6 +1,8 @@
-package com.francisbailey;
+package com.francisbailey.commands;
 
 
+import com.francisbailey.MockConnection;
+import com.francisbailey.MockRegisteredConnectionFactory;
 import com.francisbailey.irc.*;
 import com.francisbailey.irc.commands.JOIN;
 
