@@ -15,10 +15,12 @@ public class MockServerManager implements ServerManager {
     private String name;
     public ArrayList<Connection> connections;
     public ArrayList<Connection> registeredConnections;
+    public UserModes modes;
 
 
     public MockServerManager(String name, ChannelManager cm) {
         this.name = name;
+        this.modes = new UserModes();
         this.cm = cm;
         this.connections = new ArrayList<>();
         this.registeredConnections = new ArrayList<>();
@@ -55,8 +57,14 @@ public class MockServerManager implements ServerManager {
         return this.cm;
     }
 
+
     @Override
     public void broadcast(ServerMessage sm) {
 
+    }
+
+    @Override
+    public UserModes getModeTypes() {
+        return this.modes;
     }
 }

@@ -7,33 +7,24 @@ import com.francisbailey.irc.commands.JOIN;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-
-
 import static org.junit.Assert.*;
 
 
 /**
  * Created by fbailey on 05/05/17.
  */
-public class JOINTest {
-
-    private ServerManager sm;
-    private ChannelManager cm;
-    private CommandParser cp;
+public class JOINTest extends CommandTest {
 
     @Before
     public void setUp() throws Exception {
-
-        File f = new File("src/test/java/test-config.xml");
-        XMLConfigurationReader xcr = new XMLConfigurationReader(f);
-        Config config = new Config(xcr.getConfiguration());
-        this.cm = new ChannelManager(config.channels);
-        this.sm = new MockServerManager("mockserver", this.cm);
-        this.cp = new CommandParser();
+        super.setUp();
     }
 
 
+    /**
+     * Assert that a user can't join a non-existent channel
+     * @throws MissingCommandParametersException
+     */
     @Test
     public void testJoinNonExistentChannel() throws MissingCommandParametersException {
 
@@ -49,6 +40,10 @@ public class JOINTest {
     }
 
 
+    /**
+     * Assert that when a user joins a channel other users are notifed
+     * @throws MissingCommandParametersException
+     */
     @Test
     public void testJoinChannel() throws MissingCommandParametersException {
 

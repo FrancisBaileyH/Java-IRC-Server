@@ -4,17 +4,43 @@ import com.francisbailey.irc.Client;
 import com.francisbailey.irc.Connection;
 import com.francisbailey.irc.SendableMessage;
 
+
+import java.util.ArrayList;
+
 /**
  * Created by fbailey on 05/05/17.
  */
-public class MockConnection implements Connection {
+class MockConnection implements Connection {
 
-    private String lastOutput;
+    private ArrayList<SendableMessage> outputBuffer;
     private Client clientInfo;
     private Boolean registered;
 
-    public String getLastOutput() {
-        return this.lastOutput;
+
+    MockConnection() {
+        this.outputBuffer = new ArrayList<>();
+    }
+
+
+    String getLastOutput() {
+
+        int size = this.outputBuffer.size();
+
+        if (size > 0) {
+            return this.outputBuffer.get(size - 1).compile();
+        }
+
+        return null;
+    }
+
+    public String getAllOutput() {
+        String output = "";
+
+        for (SendableMessage m: this.outputBuffer) {
+            output += m.compile();
+        }
+
+        return output;
     }
 
     @Override
@@ -24,7 +50,7 @@ public class MockConnection implements Connection {
 
     @Override
     public void send(SendableMessage message) {
-        this.lastOutput = message.compile();
+        this.outputBuffer.add(message);
     }
 
     public void register(Client clientInfo) {

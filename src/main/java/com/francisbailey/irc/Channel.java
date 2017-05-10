@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @TODO FIX .removes and .contains not working properly
  * Created by fbailey on 01/12/16.
  */
-public class Channel {
+public class Channel implements ModeSettable{
 
 
     private String topic;
@@ -102,6 +102,8 @@ public class Channel {
     public String getTopic() {
         return this.topic;
     }
+
+
     public String getName() {
         return this.name;
     }

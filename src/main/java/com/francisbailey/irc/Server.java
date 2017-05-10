@@ -20,6 +20,7 @@ public class Server implements ConnectionDelegate, ServerManager {
     private CommandFactory cf;
     private ChannelManager cm;
     private String name;
+    private UserModes userModes;
 
 
     /**
@@ -30,6 +31,7 @@ public class Server implements ConnectionDelegate, ServerManager {
 
         this.connections = new ArrayList<>();
         this.registeredConnections = new ArrayList<>();
+        this.userModes = new UserModes();
         this.parser = parser;
         this.cf = cf;
         this.config = config;
@@ -185,6 +187,11 @@ public class Server implements ConnectionDelegate, ServerManager {
         for (Connection c: this.registeredConnections) {
             c.send(sm);
         }
+    }
+
+    @Override
+    public UserModes getModeTypes() {
+        return this.userModes;
     }
 
 

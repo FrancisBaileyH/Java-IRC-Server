@@ -12,5 +12,5 @@ public interface ServerManager {
     public Config getConfig();
     public ChannelManager getChannelManager();
     public void broadcast(ServerMessage sm);
-
+    public UserModes getModeTypes();
 }

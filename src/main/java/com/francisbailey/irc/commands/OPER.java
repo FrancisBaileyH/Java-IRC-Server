@@ -1,6 +1,7 @@
 package com.francisbailey.irc.commands;
 
 import com.francisbailey.irc.*;
+import com.francisbailey.irc.commands.internal.USERMODE;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 
 /**
@@ -22,8 +23,8 @@ public class OPER implements Executable {
 
             if (inputUsername.equals(username) && inputPassword.equals(password)) {
                 c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_YOUREOP, c.getClientInfo().getNick() + " :You are now an IRC operator"));
-                c.getClientInfo().getMode().addMode(UserMode.ModeType.OPERATOR);
-                MODE m = new MODE();
+                c.addMode("o");
+                USERMODE m = new USERMODE();
                 m.sendUsermode(c, instance);
 
                 return;
