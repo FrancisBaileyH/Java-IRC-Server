@@ -65,9 +65,14 @@ public class USERMODE implements Executable {
     }
 
 
+    /**
+     * IRC protocol states that users should not be able to de-restrict
+     * themselves
+     * @param c
+     * @param mode
+     */
     private void handleRemoveMode(Connection c, String mode) {
 
-        // Users should not be able to de-restrict themselves
         if (!mode.equals("r")) {
             c.getModes().unsetMode(mode);
         }
