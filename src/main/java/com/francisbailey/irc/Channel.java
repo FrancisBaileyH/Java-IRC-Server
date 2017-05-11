@@ -5,10 +5,9 @@ import java.util.ArrayList;
 
 
 /**
- * @TODO FIX .removes and .contains not working properly
  * Created by fbailey on 01/12/16.
  */
-public class Channel implements ModeSettable{
+public class Channel implements ModeSettable {
 
 
     private String topic;
