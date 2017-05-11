@@ -48,7 +48,7 @@ public class USERMODE implements Executable {
     public void sendUsermode(Connection c, ServerManager instance) {
 
         String nick = c.getClientInfo().getNick();
-        String modeis = c.getModes();
+        String modeis = c.getModes().getModeFlags();
         c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_UMODEIS, nick + " :+" + modeis));
     }
 
@@ -60,7 +60,7 @@ public class USERMODE implements Executable {
     private void handleAddMode(Connection c, String mode) {
 
         if (!mode.equals("o") && !mode.equals("O") && !mode.equals("a")) {
-            c.addMode(mode);
+            c.getModes().addMode(mode);
         }
     }
 
@@ -69,7 +69,7 @@ public class USERMODE implements Executable {
 
         // Users should not be able to de-restrict themselves
         if (!mode.equals("r")) {
-            c.unsetMode(mode);
+            c.getModes().unsetMode(mode);
         }
     }
 

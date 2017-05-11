@@ -7,11 +7,12 @@ import java.util.ArrayList;
 /**
  * Created by fbailey on 01/12/16.
  */
-public class Channel implements ModeSettable {
+public class Channel {
 
 
     private String topic;
     private String name;
+    private Modes modes;
     private ArrayList<Connection> users;
 
 
@@ -19,7 +20,13 @@ public class Channel implements ModeSettable {
 
         this.name = name;
         this.topic = topic;
+        this.modes = new Modes();
         this.users = new ArrayList<>();
+    }
+
+
+    public Modes getModes() {
+        return this.modes;
     }
 
 

@@ -5,31 +5,36 @@ import java.util.ArrayList;
 /**
  * Created by fbailey on 10/05/17.
  */
-public interface ModeSettable {
+public class Modes {
 
-    ArrayList<String> modes = new ArrayList<>();
+    private ArrayList<String> modes;
 
 
-    default void addMode(String mode) {
+    public Modes() {
+        this.modes = new ArrayList<>();
+    }
+
+
+    public void addMode(String mode) {
         if (!modes.contains(mode)) {
             modes.add(mode);
         }
     }
 
 
-    default Boolean hasMode(String mode) {
+    public Boolean hasMode(String mode) {
         return modes.contains(mode);
     }
 
 
-    default void unsetMode(String mode) {
+    public void unsetMode(String mode) {
         if (modes.contains(mode)) {
             modes.remove(mode);
         }
     }
 
 
-    default String getModes() {
+    public String getModeFlags() {
 
         String output = "";
 

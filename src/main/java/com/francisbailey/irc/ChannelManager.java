@@ -26,9 +26,19 @@ public class ChannelManager {
 
             String chanName = channel.getString("name");
             String topic = channel.getString("topic");
-            Channel c = new Channel(chanName, topic);
-            this.channels.put(chanName, c);
+            this.addChannel(chanName, topic);
         }
+    }
+
+
+    /**
+     * Add a new channel to the channel manager.
+     * @param name
+     * @param topic
+     */
+    public void addChannel(String name, String topic) {
+
+        this.channels.put(name, new Channel(name, topic));
     }
 
 

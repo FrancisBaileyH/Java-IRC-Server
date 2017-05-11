@@ -2,6 +2,7 @@ package com.francisbailey;
 
 import com.francisbailey.irc.Client;
 import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.Modes;
 import com.francisbailey.irc.SendableMessage;
 
 
@@ -15,10 +16,12 @@ public class MockConnection implements Connection {
     private ArrayList<SendableMessage> outputBuffer;
     private Client clientInfo;
     private Boolean registered;
+    private Modes modes;
 
 
     public MockConnection() {
         this.outputBuffer = new ArrayList<>();
+        this.modes = new Modes();
     }
 
 
@@ -42,6 +45,12 @@ public class MockConnection implements Connection {
 
         return output;
     }
+
+
+    public void clearOutputBuffer() {
+        this.outputBuffer.clear();
+    }
+
 
     @Override
     public void terminate() {
@@ -72,5 +81,10 @@ public class MockConnection implements Connection {
 
     public String getHostNameInfo() {
         return "";
+    }
+
+    @Override
+    public Modes getModes() {
+        return this.modes;
     }
 }

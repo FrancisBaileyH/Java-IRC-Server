@@ -43,6 +43,7 @@ public class JOINTest extends CommandTest {
 
 
     /**
+     * @TODO - assert that NAMES list and channel topic are sent to joiner
      * Assert that when a user joins a channel other users are notifed
      * @throws MissingCommandParametersException
      */

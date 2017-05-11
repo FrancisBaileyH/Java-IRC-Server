@@ -20,6 +20,7 @@ public class TCPConnection implements Runnable, Connection {
     private Boolean registered;
     private Client clientInfo;
     private ConnectionDelegate delegate;
+    private Modes modes;
 
 
     public TCPConnection(Socket s, ConnectionDelegate d) {
@@ -28,6 +29,7 @@ public class TCPConnection implements Runnable, Connection {
         this.terminated = false;
         this.registered = false;
         this.clientInfo = new Client(null, null, null, null);
+        this.modes = new Modes();
     }
 
 
@@ -121,6 +123,11 @@ public class TCPConnection implements Runnable, Connection {
     public String getHostNameInfo() {
 
         return this.socket.getInetAddress().getCanonicalHostName();
+    }
+
+    @Override
+    public Modes getModes() {
+        return this.modes;
     }
 
 }
