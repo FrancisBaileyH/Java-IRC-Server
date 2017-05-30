@@ -9,7 +9,7 @@
 
     </motd>
     <welcome-message>Welcome to irc.javaircserver.com</welcome-message>
-
+    <network-name>irc-network</network-name>
     <operators>
         <operator>
             <username>francis</username>

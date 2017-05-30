@@ -15,6 +15,7 @@ public class Config {
     public final int maxMessageLen = 510;
 
     public String serverName;
+    public String networkName;
     public String welcomeMessage;
     public String motd;
     public List<HierarchicalConfiguration> channels;
@@ -32,6 +33,7 @@ public class Config {
         this.motd = config.getString("motd");
         this.channels = config.configurationsAt("channels.channel");
         this.operators = config.configurationsAt("operators.operator");
+        this.networkName = config.getString("network-name");
     }
 
 

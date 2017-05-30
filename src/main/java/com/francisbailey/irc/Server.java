@@ -197,6 +197,6 @@ public class Server implements ConnectionDelegate, ServerManager {
 
     @Override
     public String getContextName() {
-        return this.name;
+        return config.networkName;
     }
 }

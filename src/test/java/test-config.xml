@@ -9,7 +9,7 @@
 
     </motd>
     <welcome-message>Welcome to irc.test.com</welcome-message>
-
+    <network-name>test-network</network-name>
     <operators>
         <operator>
             <username>francis</username>

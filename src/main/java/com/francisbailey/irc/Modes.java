@@ -10,13 +10,7 @@ public class Modes {
 
     private HashMap<String, ArrayList<String>> modes;
 
-    /**
-     * Context for user modes?
-     * E.g.
-     *
-     * addMode("#channelName", "mode")
-     * HashMap["Context"] = Modes
-     */
+
     public Modes() {
         this.modes = new HashMap<>();
     }
