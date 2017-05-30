@@ -35,18 +35,18 @@ public class USERMODETest extends CommandTest {
         Connection c = MockRegisteredConnectionFactory.build();
         String nick = c.getClientInfo().getNick();
 
-        ClientMessage cmA = this.cp.parse("MODE " + nick + "+O");
-        ClientMessage cmB = this.cp.parse("MODE " + nick + "+o");
-        ClientMessage cmC = this.cp.parse("MODE " + nick + "+a");
+        ClientMessage cmA = this.cp.parse("MODE " + nick + " +O");
+        ClientMessage cmB = this.cp.parse("MODE " + nick + " +o");
+        ClientMessage cmC = this.cp.parse("MODE " + nick + " +a");
 
         Executable exe = new USERMODE();
         exe.execute(c, cmA, this.sm);
         exe.execute(c, cmB, this.sm);
         exe.execute(c, cmC, this.sm);
 
-        assertFalse(c.getModes().hasMode("O"));
-        assertFalse(c.getModes().hasMode("o"));
-        assertFalse(c.getModes().hasMode("a"));
+        assertFalse(c.getModes().hasMode(this.sm, "O"));
+        assertFalse(c.getModes().hasMode(this.sm, "o"));
+        assertFalse(c.getModes().hasMode(this.sm, "a"));
     }
 
 
@@ -67,7 +67,7 @@ public class USERMODETest extends CommandTest {
 
         ServerMessage expected = new ServerMessage(this.sm.getName(), ServerMessage.ERR_UMODEUNKNOWNFLAG, ": Unknown umode flag");
         assertEquals(expected.compile(), userA.getLastOutput());
-        assertFalse(userA.getModes().hasMode("g"));
+        assertFalse(userA.getModes().hasMode(this.sm, "g"));
     }
 
 
@@ -85,10 +85,10 @@ public class USERMODETest extends CommandTest {
         USERMODE exe = new USERMODE();
 
         exe.execute(userA, cmA, this.sm);
-        assertTrue(userA.getModes().hasMode("i"));
+        assertTrue(userA.getModes().hasMode(this.sm, "i"));
 
         exe.execute(userA, cmB, this.sm);
-        assertFalse(userA.getModes().hasMode("i"));
+        assertFalse(userA.getModes().hasMode(this.sm, "i"));
     }
 
 
@@ -104,7 +104,7 @@ public class USERMODETest extends CommandTest {
 
         String userBNick = userB.getClientInfo().getNick();
 
-        ClientMessage cm = this.cp.parse("MODE " + userBNick + "+v");
+        ClientMessage cm = this.cp.parse("MODE " + userBNick + " +v");
 
         Executable exe = new USERMODE();
         exe.execute(userA, cm, this.sm);
@@ -112,7 +112,7 @@ public class USERMODETest extends CommandTest {
         ServerMessage expected = new ServerMessage(this.sm.getName(), ServerMessage.ERR_USERSDONTMATCH, ": Can't change mode for other users");
 
         assertEquals(expected.compile(), userA.getLastOutput());
-        assertFalse(userB.getModes().hasMode("v"));
+        assertFalse(userB.getModes().hasMode(this.sm, "v"));
     }
 
 
@@ -124,7 +124,7 @@ public class USERMODETest extends CommandTest {
     public void testRestrictMode() throws MissingCommandParametersException{
 
         Connection userA = MockRegisteredConnectionFactory.build();
-        userA.getModes().addMode("r");
+        userA.getModes().addMode(this.sm, "r");
         String userANick = userA.getClientInfo().getNick();
 
         ClientMessage cm = this.cp.parse("MODE " + userANick + " -r");
@@ -132,7 +132,7 @@ public class USERMODETest extends CommandTest {
         Executable exe = new USERMODE();
         exe.execute(userA, cm, this.sm);
 
-        assertTrue(userA.getModes().hasMode("r"));
+        assertTrue(userA.getModes().hasMode(this.sm, "r"));
     }
 
 }

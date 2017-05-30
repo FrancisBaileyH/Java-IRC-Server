@@ -29,10 +29,10 @@ public class USERMODE implements Executable {
                 String mode = modeAction.substring(1);
 
                 if (action.equals("-")) {
-                    this.handleRemoveMode(c, mode);
+                    this.handleRemoveMode(c, instance, mode);
                 }
                 else if (action.equals("+")) {
-                    this.handleAddMode(c, mode);
+                    this.handleAddMode(c, instance, mode);
                 }
 
                 this.sendUsermode(c, instance);
@@ -48,7 +48,7 @@ public class USERMODE implements Executable {
     public void sendUsermode(Connection c, ServerManager instance) {
 
         String nick = c.getClientInfo().getNick();
-        String modeis = c.getModes().getModeFlags();
+        String modeis = c.getModes().getModeFlags(instance);
         c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_UMODEIS, nick + " :+" + modeis));
     }
 
@@ -57,10 +57,10 @@ public class USERMODE implements Executable {
      * IRC protocol states that modes o, O, a should not be set
      * via MODE command
      */
-    private void handleAddMode(Connection c, String mode) {
+    private void handleAddMode(Connection c, ModeContext context, String mode) {
 
         if (!mode.equals("o") && !mode.equals("O") && !mode.equals("a")) {
-            c.getModes().addMode(mode);
+            c.getModes().addMode(context, mode);
         }
     }
 
@@ -71,10 +71,10 @@ public class USERMODE implements Executable {
      * @param c
      * @param mode
      */
-    private void handleRemoveMode(Connection c, String mode) {
+    private void handleRemoveMode(Connection c, ModeContext context, String mode) {
 
         if (!mode.equals("r")) {
-            c.getModes().unsetMode(mode);
+            c.getModes().unsetMode(context, mode);
         }
     }
 

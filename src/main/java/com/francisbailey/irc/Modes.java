@@ -1,45 +1,93 @@
 package com.francisbailey.irc;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by fbailey on 10/05/17.
  */
 public class Modes {
 
-    private ArrayList<String> modes;
+    private HashMap<String, ArrayList<String>> modes;
 
-
+    /**
+     * Context for user modes?
+     * E.g.
+     *
+     * addMode("#channelName", "mode")
+     * HashMap["Context"] = Modes
+     */
     public Modes() {
-        this.modes = new ArrayList<>();
+        this.modes = new HashMap<>();
     }
 
 
-    public void addMode(String mode) {
-        if (!modes.contains(mode)) {
-            modes.add(mode);
+    /**
+     * Add user modes to a given context. Context in this case
+     * can be a channel name, a server name, etc.
+     * @param context
+     * @param mode
+     */
+    public void addMode(ModeContext context, String mode) {
+
+        String contextName = context.getContextName();
+
+        if (!modes.containsKey(contextName)) {
+            modes.put(contextName, new ArrayList<>());
+        }
+
+        ArrayList<String> contextualModes = modes.get(contextName);
+
+        if (!contextualModes.contains(mode)) {
+            contextualModes.add(mode);
         }
     }
 
 
-    public Boolean hasMode(String mode) {
-        return modes.contains(mode);
+    /**
+     * Check if a mode is set for a given context
+     * @param context
+     * @param mode
+     * @return
+     */
+    public Boolean hasMode(ModeContext context, String mode) {
+
+        String contextName = context.getContextName();
+
+        return modes.containsKey(contextName) && modes.get(contextName).contains(mode);
     }
 
 
-    public void unsetMode(String mode) {
-        if (modes.contains(mode)) {
-            modes.remove(mode);
+    /**
+     * Unset a mode for a given context
+     * @param context
+     * @param mode
+     */
+    public void unsetMode(ModeContext context, String mode) {
+
+        String contextName = context.getContextName();
+
+        if (modes.containsKey(contextName)) {
+            modes.get(contextName).remove(mode);
         }
     }
 
 
-    public String getModeFlags() {
+    /**
+     * Get a string representation of all set flags
+     * for a given context. Useful for displaying
+     * modes to users that query the server.
+     * @param context
+     * @return
+     */
+    public String getModeFlags(ModeContext context) {
 
         String output = "";
 
-        for (String mode: modes) {
-            output += mode;
+        if (modes.containsKey(context.getContextName())) {
+            for (String mode : modes.get(context.getContextName())) {
+                output += mode;
+            }
         }
 
         return output;

@@ -67,4 +67,10 @@ public class MockServerManager implements ServerManager {
     public UserModes getModeTypes() {
         return this.modes;
     }
+
+
+    @Override
+    public String getContextName() {
+        return this.name;
+    }
 }

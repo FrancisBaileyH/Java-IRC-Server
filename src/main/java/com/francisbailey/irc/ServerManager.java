@@ -3,7 +3,7 @@ package com.francisbailey.irc;
 /**
  * Created by fbailey on 16/11/16.
  */
-public interface ServerManager {
+public interface ServerManager extends ModeContext {
 
     public String getName();
     public void closeConnection(Connection c);

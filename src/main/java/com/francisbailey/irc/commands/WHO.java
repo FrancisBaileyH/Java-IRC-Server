@@ -16,7 +16,7 @@ public class WHO implements Executable {
 
             for (Connection user: chan.getUsers()) {
 
-                if (!user.getModes().hasMode("i")) {
+                if (!user.getModes().hasMode(instance, "i")) {
                     Client ci = user.getClientInfo();
                     String message = ci.getNick();
                     message += " " + chan.getName();

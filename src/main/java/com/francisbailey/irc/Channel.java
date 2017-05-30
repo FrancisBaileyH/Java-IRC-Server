@@ -7,7 +7,7 @@ import java.util.ArrayList;
 /**
  * Created by fbailey on 01/12/16.
  */
-public class Channel {
+public class Channel implements ModeContext {
 
 
     private String topic;
@@ -141,4 +141,9 @@ public class Channel {
         }
     }
 
+
+    @Override
+    public String getContextName() {
+        return this.name;
+    }
 }
