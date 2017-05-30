@@ -28,7 +28,7 @@ public class Modes {
      * @param context
      * @param mode
      */
-    public void addMode(ModeContext context, String mode) {
+    public synchronized void addMode(ModeContext context, String mode) {
 
         String contextName = context.getContextName();
 
@@ -50,7 +50,7 @@ public class Modes {
      * @param mode
      * @return
      */
-    public Boolean hasMode(ModeContext context, String mode) {
+    public synchronized Boolean hasMode(ModeContext context, String mode) {
 
         String contextName = context.getContextName();
 
@@ -63,7 +63,7 @@ public class Modes {
      * @param context
      * @param mode
      */
-    public void unsetMode(ModeContext context, String mode) {
+    public synchronized void unsetMode(ModeContext context, String mode) {
 
         String contextName = context.getContextName();
 
@@ -80,7 +80,7 @@ public class Modes {
      * @param context
      * @return
      */
-    public String getModeFlags(ModeContext context) {
+    public synchronized String getModeFlags(ModeContext context) {
 
         String output = "";
 
