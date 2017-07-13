@@ -58,7 +58,7 @@ public class Server implements ConnectionDelegate, ServerManager {
             while (true) {
 
                 Socket s = this.socket.accept();
-                TCPConnection c = new TCPConnection(s, this);
+                IrcConnection c = new IrcConnection(s, this);
 
                 this.connections.add(c);
                 Thread t = new Thread(c);

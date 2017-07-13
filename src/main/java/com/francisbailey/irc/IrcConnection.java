@@ -10,7 +10,7 @@ import java.net.Socket;
 /**
  * @TODO PING Timer & Registration Timer
  */
-public class TCPConnection implements Runnable, Connection {
+public class IrcConnection implements Runnable, Connection {
 
 
     private Socket socket;
@@ -23,7 +23,7 @@ public class TCPConnection implements Runnable, Connection {
     private Modes modes;
 
 
-    public TCPConnection(Socket s, ConnectionDelegate d) {
+    public IrcConnection(Socket s, ConnectionDelegate d) {
         this.socket = s;
         this.delegate = d;
         this.terminated = false;

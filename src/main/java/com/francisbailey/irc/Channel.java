@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @TODO MaxUserLimit dynamically set from config
  * Created by fbailey on 01/12/16.
  */
-public class Channel implements ModeContext {
+public class Channel implements ModeContext, ModeTarget {
 
     private String topic;
     private String name;
