@@ -24,7 +24,6 @@ public class QUIT implements Executable {
         }
 
         for (Channel chan: channels) {
-
             chan.part(c, message);
         }
 

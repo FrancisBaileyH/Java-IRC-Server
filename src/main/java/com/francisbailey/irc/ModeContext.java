@@ -5,4 +5,5 @@ package com.francisbailey.irc;
  */
 public interface ModeContext {
     public String getContextName();
+    public String getContextType();
 }

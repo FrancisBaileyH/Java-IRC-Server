@@ -9,6 +9,7 @@ import java.util.HashMap;
 public class Modes {
 
     private HashMap<String, ArrayList<String>> modes;
+    private static final ModeContext defaultContext = new DefaultContext();
 
 
     public Modes() {
@@ -16,9 +17,30 @@ public class Modes {
     }
 
 
+    public void addMode(String mode) {
+        this.addMode(Modes.defaultContext, mode);
+    }
+
+
+    public void unsetMode(String mode) {
+        this.unsetMode(Modes.defaultContext, mode);
+    }
+
+
+    public boolean hasMode(String mode) {
+        return this.hasMode(Modes.defaultContext, mode);
+    }
+
+
+    public String getModeFlags() {
+        return this.getModeFlags(Modes.defaultContext);
+    }
+
+
     /**
      * Add user modes to a given context. Context in this case
      * can be a channel name, a server name, etc.
+     *
      * @param context
      * @param mode
      */
@@ -40,6 +62,7 @@ public class Modes {
 
     /**
      * Check if a mode is set for a given context
+     *
      * @param context
      * @param mode
      * @return
@@ -54,6 +77,7 @@ public class Modes {
 
     /**
      * Unset a mode for a given context
+     *
      * @param context
      * @param mode
      */
@@ -71,6 +95,7 @@ public class Modes {
      * Get a string representation of all set flags
      * for a given context. Useful for displaying
      * modes to users that query the server.
+     *
      * @param context
      * @return
      */
@@ -87,4 +112,21 @@ public class Modes {
         return output;
     }
 
+
+    /**
+     * Private class to create a default 'global' context
+     */
+    private static class DefaultContext implements ModeContext {
+
+        @Override
+        public String getContextName() {
+            return "global";
+        }
+
+        public String getContextType() {
+            return "global";
+        }
+    }
 }
+
+

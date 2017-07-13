@@ -199,4 +199,10 @@ public class Server implements ConnectionDelegate, ServerManager {
     public String getContextName() {
         return config.networkName;
     }
+
+
+    @Override
+    public String getContextType() {
+        return "server";
+    }
 }

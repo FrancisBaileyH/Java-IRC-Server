@@ -73,4 +73,9 @@ public class MockServerManager implements ServerManager {
     public String getContextName() {
         return this.name;
     }
+
+    @Override
+    public String getContextType() {
+        return "server";
+    }
 }

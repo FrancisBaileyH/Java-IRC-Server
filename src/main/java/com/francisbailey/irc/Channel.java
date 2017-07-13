@@ -5,14 +5,21 @@ import java.util.ArrayList;
 
 
 /**
+ * @TODO MaxUserLimit dynamically set from config
  * Created by fbailey on 01/12/16.
  */
 public class Channel implements ModeContext {
 
-
     private String topic;
     private String name;
+
+    private int userLimit;
+    private String key;
+    private String banMask;
+    private String invitationMask;
+    private String banExceptionMask;
     private Modes modes;
+
     private ArrayList<Connection> users;
 
 
@@ -145,5 +152,59 @@ public class Channel implements ModeContext {
     @Override
     public String getContextName() {
         return this.name;
+    }
+
+
+    @Override
+    public String getContextType() {
+        return "channel";
+    }
+
+
+    public synchronized void setUserLimit(int userLimit) {
+        this.userLimit = userLimit;
+    }
+
+
+    public synchronized void setKey(String key) {
+        this.key = key;
+    }
+
+    /**
+     * @TODO - just a placeholder. A channel can have multiple
+     * Ban Masks, so we'll have to come up with a proper strategy
+     * for managing them.
+     * @param banMask
+     */
+    public synchronized void setBanMask(String banMask) {
+        this.banMask = banMask;
+    }
+
+    public synchronized void setInvitationMask(String invitationMask) {
+        this.invitationMask = invitationMask;
+    }
+
+    public synchronized void setBanExceptionMask(String banExceptionMask) {
+        this.banExceptionMask = banExceptionMask;
+    }
+
+    public synchronized String getBanMask() {
+        return banMask;
+    }
+
+    public synchronized String getKey() {
+        return key;
+    }
+
+    public synchronized int getUserLimit() {
+        return userLimit;
+    }
+
+    public synchronized String getInvitationMask() {
+        return invitationMask;
+    }
+
+    public synchronized String getBanExceptionMask() {
+        return banExceptionMask;
     }
 }
