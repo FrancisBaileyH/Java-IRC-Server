@@ -1,6 +1,6 @@
-package com.francisbailey.commands;
+package com.francisbailey.irc.commands;
 
-import com.francisbailey.MockServerManager;
+import com.francisbailey.irc.MockServerManager;
 import com.francisbailey.irc.*;
 import org.junit.Before;
 

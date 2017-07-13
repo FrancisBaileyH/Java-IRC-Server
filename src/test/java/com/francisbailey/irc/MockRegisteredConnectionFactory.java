@@ -1,7 +1,4 @@
-package com.francisbailey;
-
-import com.francisbailey.irc.Client;
-import com.francisbailey.irc.Connection;
+package com.francisbailey.irc;
 
 import java.security.SecureRandom;
 import java.util.Collections;

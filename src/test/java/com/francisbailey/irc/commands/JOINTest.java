@@ -1,10 +1,9 @@
-package com.francisbailey.commands;
+package com.francisbailey.irc.commands;
 
 
-import com.francisbailey.MockConnection;
-import com.francisbailey.MockRegisteredConnectionFactory;
+import com.francisbailey.irc.MockConnection;
+import com.francisbailey.irc.MockRegisteredConnectionFactory;
 import com.francisbailey.irc.*;
-import com.francisbailey.irc.commands.JOIN;
 
 import org.junit.Before;
 import org.junit.Test;

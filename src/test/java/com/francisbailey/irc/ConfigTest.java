@@ -1,4 +1,4 @@
-package com.francisbailey;
+package com.francisbailey.irc;
 
 import com.francisbailey.irc.Config;
 import com.francisbailey.irc.XMLConfigurationReader;

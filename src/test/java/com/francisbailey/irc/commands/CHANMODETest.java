@@ -1,6 +1,6 @@
-package com.francisbailey.commands;
+package com.francisbailey.irc.commands;
 
-import com.francisbailey.MockRegisteredConnectionFactory;
+import com.francisbailey.irc.MockRegisteredConnectionFactory;
 import com.francisbailey.irc.Channel;
 import com.francisbailey.irc.ClientMessage;
 import com.francisbailey.irc.Connection;
@@ -23,6 +23,7 @@ public class CHANMODETest extends CommandTest {
 
     @Before
     public void setUp() throws Exception {
+
         super.setUp();
         this.sm.getChannelManager().addChannel(channelName, "");
         this.testChannel = this.sm.getChannelManager().getChannel(channelName);
@@ -37,16 +38,16 @@ public class CHANMODETest extends CommandTest {
     public void testNonOPChangeModes() throws Exception {
 
         CHANMODE exe = new CHANMODE();
-        this.testChannel.getModes().addMode("i");
+        this.testChannel.getModes().addMode(this.testChannel, "i");
 
         ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +t");
         ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -i");
 
         exe.execute(this.chanUser, cmA, this.sm);
-        assertFalse(this.testChannel.getModes().hasMode("t"));
+        assertFalse(this.testChannel.getModes().hasMode(this.testChannel, "t"));
 
         exe.execute(this.chanUser, cmB, this.sm);
-        assertTrue(this.testChannel.getModes().hasMode("i"));
+        assertTrue(this.testChannel.getModes().hasMode(this.testChannel, "i"));
     }
 
 
@@ -86,10 +87,10 @@ public class CHANMODETest extends CommandTest {
         ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -m");
 
         exe.execute(chanOp, cmA, this.sm);
-        assertTrue(this.testChannel.getModes().hasMode("m"));
+        assertTrue(this.testChannel.getModes().hasMode(this.testChannel, "m"));
 
         exe.execute(chanOp, cmB, this.sm);
-        assertFalse(this.testChannel.getModes().hasMode("m"));
+        assertFalse(this.testChannel.getModes().hasMode(this.testChannel, "m"));
     }
 
 

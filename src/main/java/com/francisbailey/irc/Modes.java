@@ -8,32 +8,11 @@ import java.util.HashMap;
  */
 public class Modes {
 
-    private HashMap<String, ArrayList<String>> modes;
-    private static final ModeContext defaultContext = new DefaultContext();
+    private HashMap<ModeContext, ArrayList<String>> modes;
 
 
     public Modes() {
         this.modes = new HashMap<>();
-    }
-
-
-    public void addMode(String mode) {
-        this.addMode(Modes.defaultContext, mode);
-    }
-
-
-    public void unsetMode(String mode) {
-        this.unsetMode(Modes.defaultContext, mode);
-    }
-
-
-    public boolean hasMode(String mode) {
-        return this.hasMode(Modes.defaultContext, mode);
-    }
-
-
-    public String getModeFlags() {
-        return this.getModeFlags(Modes.defaultContext);
     }
 
 
@@ -46,13 +25,11 @@ public class Modes {
      */
     public synchronized void addMode(ModeContext context, String mode) {
 
-        String contextName = context.getContextName();
-
-        if (!modes.containsKey(contextName)) {
-            modes.put(contextName, new ArrayList<>());
+        if (!modes.containsKey(context)) {
+            modes.put(context, new ArrayList<>());
         }
 
-        ArrayList<String> contextualModes = modes.get(contextName);
+        ArrayList<String> contextualModes = modes.get(context);
 
         if (!contextualModes.contains(mode)) {
             contextualModes.add(mode);
@@ -69,9 +46,7 @@ public class Modes {
      */
     public synchronized Boolean hasMode(ModeContext context, String mode) {
 
-        String contextName = context.getContextName();
-
-        return modes.containsKey(contextName) && modes.get(contextName).contains(mode);
+        return modes.containsKey(context) && modes.get(context).contains(mode);
     }
 
 
@@ -83,10 +58,8 @@ public class Modes {
      */
     public synchronized void unsetMode(ModeContext context, String mode) {
 
-        String contextName = context.getContextName();
-
-        if (modes.containsKey(contextName)) {
-            modes.get(contextName).remove(mode);
+        if (modes.containsKey(context)) {
+            modes.get(context).remove(mode);
         }
     }
 
@@ -103,8 +76,8 @@ public class Modes {
 
         String output = "";
 
-        if (modes.containsKey(context.getContextName())) {
-            for (String mode : modes.get(context.getContextName())) {
+        if (modes.containsKey(context)) {
+            for (String mode : modes.get(context)) {
                 output += mode;
             }
         }
@@ -112,21 +85,6 @@ public class Modes {
         return output;
     }
 
-
-    /**
-     * Private class to create a default 'global' context
-     */
-    private static class DefaultContext implements ModeContext {
-
-        @Override
-        public String getContextName() {
-            return "global";
-        }
-
-        public String getContextType() {
-            return "global";
-        }
-    }
 }
 
 

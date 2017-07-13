@@ -1,4 +1,4 @@
-package com.francisbailey;
+package com.francisbailey.irc;
 
 import com.francisbailey.irc.Client;
 import com.francisbailey.irc.Connection;

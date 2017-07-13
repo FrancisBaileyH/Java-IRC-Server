@@ -1,7 +1,5 @@
-package com.francisbailey;
+package com.francisbailey.irc;
 
-import com.francisbailey.irc.Channel;
-import com.francisbailey.irc.ServerMessage;
 import org.junit.Before;
 import org.junit.Test;
 
