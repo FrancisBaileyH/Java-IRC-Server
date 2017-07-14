@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @TODO MaxUserLimit dynamically set from config
  * Created by fbailey on 01/12/16.
  */
-public class Channel implements ModeContext, ModeTarget {
+public class Channel implements ModeResource, ModeTarget {
 
     private String topic;
     private String name;
@@ -18,7 +18,6 @@ public class Channel implements ModeContext, ModeTarget {
     private String banMask;
     private String invitationMask;
     private String banExceptionMask;
-    private Modes modes;
 
     private ArrayList<Connection> users;
 
@@ -27,13 +26,7 @@ public class Channel implements ModeContext, ModeTarget {
 
         this.name = name;
         this.topic = topic;
-        this.modes = new Modes();
         this.users = new ArrayList<>();
-    }
-
-
-    public Modes getModes() {
-        return this.modes;
     }
 
 
@@ -150,13 +143,13 @@ public class Channel implements ModeContext, ModeTarget {
 
 
     @Override
-    public String getContextName() {
+    public String getResourceName() {
         return this.name;
     }
 
 
     @Override
-    public String getContextType() {
+    public String getResourceType() {
         return "channel";
     }
 
@@ -206,5 +199,10 @@ public class Channel implements ModeContext, ModeTarget {
 
     public synchronized String getBanExceptionMask() {
         return banExceptionMask;
+    }
+
+    @Override
+    public String getTargetType() {
+        return "channel";
     }
 }

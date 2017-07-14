@@ -9,14 +9,27 @@ import java.util.HashMap;
 public class ModeControl {
 
 
-    private HashMap<ModeContext, ArrayList<String>> resources;
+    private HashMap<String, ArrayList<String>> resources;
     private HashMap<ModeTarget, Modes> targetModes;
+    private HashMap<String, ModeContext> contextCache;
 
 
     public ModeControl() {
+        this(new HashMap<>());
+    }
+
+
+    public ModeControl(HashMap<String, String[]> defaultResourceModes) {
 
         this.resources = new HashMap<>();
         this.targetModes = new HashMap<>();
+        this.contextCache = new HashMap<>();
+
+        for (String resourceType: defaultResourceModes.keySet()) {
+            for (String mode: defaultResourceModes.get(resourceType)) {
+                this.addModeTypeForContext(mode, resourceType);
+            }
+        }
     }
 
 
@@ -26,9 +39,9 @@ public class ModeControl {
      * object.
      * @param mode
      * @param target
-     * @param context
+     * @param resource
      */
-    public void addTargetMode(String mode, ModeTarget target, ModeContext context) {
+    public void addTargetMode(String mode, ModeTarget target, ModeResource resource) {
 
         Modes modes = this.targetModes.get(target);
 
@@ -37,7 +50,7 @@ public class ModeControl {
             this.targetModes.put(target, modes);
         }
 
-        modes.addMode(context, mode);
+        modes.addMode(this.buildModeContext(target, resource), mode);
     }
 
 
@@ -55,12 +68,12 @@ public class ModeControl {
      * Remove a mode from a given target and context
      * @param mode
      * @param target
-     * @param context
+     * @param resource
      */
-    public void removeTargetMode(String mode, ModeTarget target, ModeContext context) {
+    public void removeTargetMode(String mode, ModeTarget target, ModeResource resource) {
 
         if (this.targetModes.containsKey(target)) {
-            this.targetModes.get(target).unsetMode(context, mode);
+            this.targetModes.get(target).unsetMode(this.buildModeContext(target, resource), mode);
         }
     }
 
@@ -69,16 +82,16 @@ public class ModeControl {
      * Verify that a target has a mode for a particular context
      * @param mode
      * @param target
-     * @param context
+     * @param resource
      * @return
      */
-    public Boolean targetHasMode(String mode, ModeTarget target, ModeContext context) {
+    public Boolean targetHasMode(String mode, ModeTarget target, ModeResource resource) {
 
         if (!this.targetModes.containsKey(target)) {
             return false;
         }
         else {
-            return this.targetModes.get(target).hasMode(context, mode);
+            return this.targetModes.get(target).hasMode(this.buildModeContext(target, resource), mode);
         }
     }
 
@@ -86,16 +99,16 @@ public class ModeControl {
     /**
      * Get all target modes as a single string for a given context
      * @param target
-     * @param context
+     * @param resource
      * @return
      */
-    public String getTargetModes(ModeTarget target, ModeContext context) {
+    public String getTargetModes(ModeTarget target, ModeResource resource) {
 
         String output = "";
         Modes modes = this.targetModes.get(target);
 
         if (modes != null) {
-            output = modes.getModeFlags(context);
+            output = modes.getModeFlags(this.buildModeContext(target, resource));
         }
 
         return output;
@@ -103,7 +116,7 @@ public class ModeControl {
 
 
     /**
-     * Check that a mode exists for a give resource, by
+     * Check that a mode exists for a given resource, by
      * seeing if the resource exists and if there's a mode
      * for that resource.
      * @param mode
@@ -112,13 +125,19 @@ public class ModeControl {
      */
     public Boolean isValidMode(String mode, ModeContext context) {
 
-        ArrayList<String> modes = this.resources.get(context);
+        ArrayList<String> modes = this.resources.get(context.getContextName());
 
         if (modes == null || !modes.contains(mode)) {
             return false;
         }
 
         return true;
+    }
+
+
+    public Boolean isValidMode(String mode, ModeTarget target, ModeResource resource) {
+
+        return this.isValidMode(mode, new ModeContext(target, resource));
     }
 
 
@@ -130,11 +149,17 @@ public class ModeControl {
      */
     public void addModeTypeForContext(String mode, ModeContext context) {
 
-        ArrayList<String> modes = this.resources.get(context);
+        this.addModeTypeForContext(mode, context.getContextName());
+    }
+
+
+    private void addModeTypeForContext(String mode, String contextName) {
+
+        ArrayList<String> modes = this.resources.get(contextName);
 
         if (modes == null) {
             modes = new ArrayList<>();
-            this.resources.put(context, modes);
+            this.resources.put(contextName, modes);
         }
 
         modes.add(mode);
@@ -147,8 +172,8 @@ public class ModeControl {
      */
     public void addModeContext(ModeContext context) {
 
-        if (!this.resources.containsKey(context)) {
-            this.resources.put(context, new ArrayList<>());
+        if (!this.resources.containsKey(context.getContextName())) {
+            this.resources.put(context.getContextName(), new ArrayList<>());
         }
     }
 
@@ -160,8 +185,8 @@ public class ModeControl {
      */
     public void removeModeContext(ModeContext context) {
 
-        if (this.resources.containsKey(context)) {
-            this.resources.remove(context);
+        if (this.resources.containsKey(context.getContextName())) {
+            this.resources.remove(context.getContextName());
         }
     }
 
@@ -173,10 +198,25 @@ public class ModeControl {
      */
     public void removeModeTypeForContext(String mode, ModeContext context) {
 
-        ArrayList<String> modes = this.resources.get(context);
+        ArrayList<String> modes = this.resources.get(context.getContextName());
 
         if (modes != null && modes.contains(mode)) {
             modes.remove(mode);
+        }
+    }
+
+
+    public ModeContext buildModeContext(ModeTarget target, ModeResource resource) {
+
+        String contextName = ModeContext.getContextName(target, resource);
+
+        if (this.contextCache.containsKey(contextName)) {
+            return this.contextCache.get(contextName);
+        }
+        else {
+            ModeContext context = new ModeContext(target, resource);
+            this.contextCache.put(context.getContextName(), context);
+            return context;
         }
     }
 

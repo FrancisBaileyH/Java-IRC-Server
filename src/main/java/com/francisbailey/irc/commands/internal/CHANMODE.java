@@ -11,17 +11,35 @@ public class CHANMODE implements Executable {
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
         String chanName = cm.getParameter(0);
-        Channel target = instance.getChannelManager().getChannel(chanName);
-        Modes usersModes = c.getModes();
+        Channel channel = instance.getChannelManager().getChannel(chanName);
 
-        if (target == null) {
+        if (channel == null) {
             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, " :No such channel, can't change mode"));
         }
-        else if (!usersModes.hasMode(target, "o") || !usersModes.hasMode(target, "O")) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOPRIVILEGES, ":Must be operator to change channel modes"));
+        else if (cm.getParameterCount() < 2) {
+//            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, " : "));
         }
         else {
+            this.handleValidChanMode(channel, c, cm, instance);
+        }
+    }
 
+
+    private void handleValidChanMode(Channel channel, Connection c, ClientMessage cm, ServerManager instance) {
+
+        ModeControl mc = instance.getModeControl();
+
+        if (cm.getParameterCount() == 2) {
+
+            if (!mc.targetHasMode("o", (ModeTarget)c, channel) || !mc.targetHasMode("O", (ModeTarget)c, channel)) {
+                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOPRIVILEGES, ":Must be operator to change channel modes"));
+            }
+            else {
+                // set channel mode
+            }
+        }
+        else {
+            String mode = cm.getParameter(1);
         }
     }
 

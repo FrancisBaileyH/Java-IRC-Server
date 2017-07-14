@@ -8,7 +8,7 @@ import java.util.HashMap;
  */
 public class Modes {
 
-    private HashMap<ModeContext, ArrayList<String>> modes;
+    private HashMap<String, ArrayList<String>> modes;
 
 
     public Modes() {
@@ -25,11 +25,13 @@ public class Modes {
      */
     public synchronized void addMode(ModeContext context, String mode) {
 
-        if (!modes.containsKey(context)) {
-            modes.put(context, new ArrayList<>());
+        String contextName = context.getContextName();
+
+        if (!modes.containsKey(contextName)) {
+            modes.put(contextName, new ArrayList<>());
         }
 
-        ArrayList<String> contextualModes = modes.get(context);
+        ArrayList<String> contextualModes = modes.get(contextName);
 
         if (!contextualModes.contains(mode)) {
             contextualModes.add(mode);
@@ -46,7 +48,8 @@ public class Modes {
      */
     public synchronized Boolean hasMode(ModeContext context, String mode) {
 
-        return modes.containsKey(context) && modes.get(context).contains(mode);
+        String contextName = context.getContextName();
+        return modes.containsKey(contextName) && modes.get(contextName).contains(mode);
     }
 
 
@@ -58,8 +61,10 @@ public class Modes {
      */
     public synchronized void unsetMode(ModeContext context, String mode) {
 
-        if (modes.containsKey(context)) {
-            modes.get(context).remove(mode);
+        String contextName = context.getContextName();
+
+        if (modes.containsKey(contextName)) {
+            modes.get(contextName).remove(mode);
         }
     }
 
@@ -76,8 +81,8 @@ public class Modes {
 
         String output = "";
 
-        if (modes.containsKey(context)) {
-            for (String mode : modes.get(context)) {
+        if (modes.containsKey(context.getContextName())) {
+            for (String mode : modes.get(context.getContextName())) {
                 output += mode;
             }
         }

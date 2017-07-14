@@ -11,19 +11,21 @@ import java.util.ArrayList;
 public class MockServerManager implements ServerManager {
 
 
+    private MockConfig config;
     private ChannelManager cm;
     private String name;
+    private ModeControl mc;
     public ArrayList<Connection> connections;
     public ArrayList<Connection> registeredConnections;
-    public UserModes modes;
 
 
     public MockServerManager(String name, ChannelManager cm) {
         this.name = name;
-        this.modes = new UserModes();
         this.cm = cm;
         this.connections = new ArrayList<>();
         this.registeredConnections = new ArrayList<>();
+        this.config = new MockConfig();
+        this.mc = new ModeControl(this.config.defaultModes);
     }
 
 
@@ -64,18 +66,17 @@ public class MockServerManager implements ServerManager {
     }
 
     @Override
-    public UserModes getModeTypes() {
-        return this.modes;
+    public ModeControl getModeControl() {
+        return this.mc;
     }
 
-
     @Override
-    public String getContextName() {
+    public String getResourceName() {
         return this.name;
     }
 
     @Override
-    public String getContextType() {
+    public String getResourceType() {
         return "server";
     }
 }

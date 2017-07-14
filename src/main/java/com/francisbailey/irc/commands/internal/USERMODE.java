@@ -20,8 +20,11 @@ public class USERMODE implements Executable {
         else {
 
             String modeAction = cm.getParameter(1);
+            ModeControl mc = instance.getModeControl();
 
-            if (modeAction.length() != 2 || !instance.getModeTypes().isMode(modeAction.substring(1)) || (!modeAction.startsWith("+") && !modeAction.startsWith("-"))) {
+            if (modeAction.length() != 2 || !mc.isValidMode(modeAction.substring(1), (ModeTarget)c, instance)
+            || (!modeAction.startsWith("+") && !modeAction.startsWith("-"))) {
+
                 c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UMODEUNKNOWNFLAG, ": Unknown umode flag"));
             }
             else {
@@ -48,7 +51,7 @@ public class USERMODE implements Executable {
     public void sendUsermode(Connection c, ServerManager instance) {
 
         String nick = c.getClientInfo().getNick();
-        String modeis = c.getModes().getModeFlags(instance);
+        String modeis = instance.getModeControl().getTargetModes((ModeTarget)c, instance);
         c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_UMODEIS, nick + " :+" + modeis));
     }
 
@@ -57,10 +60,10 @@ public class USERMODE implements Executable {
      * IRC protocol states that modes o, O, a should not be set
      * via MODE command
      */
-    private void handleAddMode(Connection c, ModeContext context, String mode) {
+    private void handleAddMode(Connection c, ServerManager instance, String mode) {
 
         if (!mode.equals("o") && !mode.equals("O") && !mode.equals("a")) {
-            c.getModes().addMode(context, mode);
+            instance.getModeControl().addTargetMode(mode, (ModeTarget)c, instance);
         }
     }
 
@@ -71,10 +74,10 @@ public class USERMODE implements Executable {
      * @param c
      * @param mode
      */
-    private void handleRemoveMode(Connection c, ModeContext context, String mode) {
+    private void handleRemoveMode(Connection c, ServerManager instance, String mode) {
 
         if (!mode.equals("r")) {
-            c.getModes().unsetMode(context, mode);
+            instance.getModeControl().removeTargetMode(mode, (ModeTarget)c, instance);
         }
     }
 

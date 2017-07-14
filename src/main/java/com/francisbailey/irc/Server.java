@@ -19,8 +19,8 @@ public class Server implements ConnectionDelegate, ServerManager {
     private CommandParser parser;
     private CommandFactory cf;
     private ChannelManager cm;
+    private ModeControl mc;
     private String name;
-    private UserModes userModes;
 
 
     /**
@@ -31,12 +31,12 @@ public class Server implements ConnectionDelegate, ServerManager {
 
         this.connections = new ArrayList<>();
         this.registeredConnections = new ArrayList<>();
-        this.userModes = new UserModes();
         this.parser = parser;
         this.cf = cf;
         this.config = config;
         this.cm = new ChannelManager(config.channels);
         this.name = config.serverName;
+        this.mc = new ModeControl(config.defaultModes);
 
         try {
             this.socket = new ServerSocket(port);
@@ -115,6 +115,7 @@ public class Server implements ConnectionDelegate, ServerManager {
 
         this.connections.remove(c);
         this.registeredConnections.remove(c);
+        this.mc.removeTarget((ModeTarget)c);
         c.terminate();
     }
 
@@ -190,19 +191,19 @@ public class Server implements ConnectionDelegate, ServerManager {
     }
 
     @Override
-    public UserModes getModeTypes() {
-        return this.userModes;
+    public ModeControl getModeControl() {
+        return this.mc;
     }
 
 
     @Override
-    public String getContextName() {
+    public String getResourceName() {
         return config.networkName;
     }
 
 
     @Override
-    public String getContextType() {
+    public String getResourceType() {
         return "server";
     }
 }

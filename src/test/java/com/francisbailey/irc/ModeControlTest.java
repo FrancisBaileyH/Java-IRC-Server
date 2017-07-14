@@ -14,40 +14,44 @@ public class ModeControlTest {
     private ModeControl testControl;
 
 
-    private ModeContext mockContext = new ModeContext() {
+    private ModeResource mockResource = new ModeResource() {
         @Override
-        public String getContextName() {
+        public String getResourceName() {
             return "test";
         }
 
         @Override
-        public String getContextType() {
+        public String getResourceType() {
             return "test";
         }
     };
 
 
-    private ModeContext altMockContext = new ModeContext() {
+    private ModeResource altMockResource = new ModeResource() {
         @Override
-        public String getContextName() {
+        public String getResourceName() {
             return "alt";
         }
 
         @Override
-        public String getContextType() {
+        public String getResourceType() {
             return "alt";
         }
     };
 
 
-    private ModeTarget mockModeTarget = new ModeTarget() {
+    private ModeContext mockContext;
+    private ModeContext altMockContext;
 
-    };
+
+    private ModeTarget mockModeTarget = () -> "foo-target";
 
 
     @Before
     public void setUp() throws Exception {
 
+        this.mockContext = new ModeContext(this.mockModeTarget, this.mockResource);
+        this.altMockContext = new ModeContext(this.mockModeTarget, this.altMockResource);
         this.testControl = new ModeControl();
         this.testControl.addModeContext(this.mockContext);
     }
@@ -116,13 +120,13 @@ public class ModeControlTest {
     @Test
     public void addTargetMode() {
 
-        this.testControl.addTargetMode("a", this.mockModeTarget, this.mockContext);
-        this.testControl.addTargetMode("b", this.mockModeTarget, this.mockContext);
-        this.testControl.addTargetMode("b", this.mockModeTarget, this.mockContext);
+        this.testControl.addTargetMode("a", this.mockModeTarget, this.mockResource);
+        this.testControl.addTargetMode("b", this.mockModeTarget, this.mockResource);
+        this.testControl.addTargetMode("b", this.mockModeTarget, this.mockResource);
 
-        assertEquals("ab", this.testControl.getTargetModes(this.mockModeTarget, this.mockContext));
-        assertTrue(this.testControl.targetHasMode("a", this.mockModeTarget, this.mockContext));
-        assertTrue(this.testControl.targetHasMode("b", this.mockModeTarget, this.mockContext));
+        assertEquals("ab", this.testControl.getTargetModes(this.mockModeTarget, this.mockResource));
+        assertTrue(this.testControl.targetHasMode("a", this.mockModeTarget, this.mockResource));
+        assertTrue(this.testControl.targetHasMode("b", this.mockModeTarget, this.mockResource));
     }
 
 
@@ -132,12 +136,12 @@ public class ModeControlTest {
     @Test
     public void removeTarget() {
 
-        this.testControl.addTargetMode("a", this.mockModeTarget, this.mockContext);
-        this.testControl.addTargetMode("b", this.mockModeTarget, this.mockContext);
+        this.testControl.addTargetMode("a", this.mockModeTarget, this.mockResource);
+        this.testControl.addTargetMode("b", this.mockModeTarget, this.mockResource);
 
         this.testControl.removeTarget(this.mockModeTarget);
-        assertFalse(this.testControl.targetHasMode("a", this.mockModeTarget, this.mockContext));
-        assertFalse(this.testControl.targetHasMode("b", this.mockModeTarget, this.mockContext));
+        assertFalse(this.testControl.targetHasMode("a", this.mockModeTarget, this.mockResource));
+        assertFalse(this.testControl.targetHasMode("b", this.mockModeTarget, this.mockResource));
     }
 
 
@@ -148,17 +152,17 @@ public class ModeControlTest {
     @Test
     public void removeTargetMode() {
 
-        this.testControl.addTargetMode("a", this.mockModeTarget, this.mockContext);
-        this.testControl.addTargetMode("b", this.mockModeTarget, this.mockContext);
+        this.testControl.addTargetMode("a", this.mockModeTarget, this.mockResource);
+        this.testControl.addTargetMode("b", this.mockModeTarget, this.mockResource);
 
-        this.testControl.removeTargetMode("a", this.mockModeTarget, this.mockContext);
-        this.testControl.removeTargetMode("a", this.mockModeTarget, this.mockContext);
+        this.testControl.removeTargetMode("a", this.mockModeTarget, this.mockResource);
+        this.testControl.removeTargetMode("a", this.mockModeTarget, this.mockResource);
 
-        assertFalse(this.testControl.targetHasMode("a", this.mockModeTarget, this.mockContext));
-        assertTrue(this.testControl.targetHasMode("b", this.mockModeTarget, this.mockContext));
+        assertFalse(this.testControl.targetHasMode("a", this.mockModeTarget, this.mockResource));
+        assertTrue(this.testControl.targetHasMode("b", this.mockModeTarget, this.mockResource));
 
-        this.testControl.removeTargetMode("b", this.mockModeTarget, this.mockContext);
-        assertFalse(this.testControl.targetHasMode("b", this.mockModeTarget, this.mockContext));
+        this.testControl.removeTargetMode("b", this.mockModeTarget, this.mockResource);
+        assertFalse(this.testControl.targetHasMode("b", this.mockModeTarget, this.mockResource));
 
     }
 
@@ -169,14 +173,14 @@ public class ModeControlTest {
     @Test
     public void getTargetModes() {
 
-        this.testControl.addTargetMode("a", this.mockModeTarget, this.mockContext);
-        assertEquals("a", this.testControl.getTargetModes(this.mockModeTarget, this.mockContext));
+        this.testControl.addTargetMode("a", this.mockModeTarget, this.mockResource);
+        assertEquals("a", this.testControl.getTargetModes(this.mockModeTarget, this.mockResource));
 
-        this.testControl.addTargetMode("b", this.mockModeTarget, this.mockContext);
-        this.testControl.addTargetMode("c", this.mockModeTarget, this.mockContext);
-        this.testControl.addTargetMode("d", this.mockModeTarget, this.mockContext);
+        this.testControl.addTargetMode("b", this.mockModeTarget, this.mockResource);
+        this.testControl.addTargetMode("c", this.mockModeTarget, this.mockResource);
+        this.testControl.addTargetMode("d", this.mockModeTarget, this.mockResource);
 
-        assertEquals("abcd", this.testControl.getTargetModes(this.mockModeTarget, this.mockContext));
+        assertEquals("abcd", this.testControl.getTargetModes(this.mockModeTarget, this.mockResource));
     }
 
 }

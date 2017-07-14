@@ -41,7 +41,7 @@ public class WHOTest extends CommandTest {
         c.join(userC);
         c.join(userD);
 
-        userD.getModes().addMode(this.sm, "i");
+        this.mc.addTargetMode("i", userD, c);
         userA.clearOutputBuffer();
 
         ClientMessage cm = this.cp.parse("WHO #foo");

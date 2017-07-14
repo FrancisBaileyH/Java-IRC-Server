@@ -11,5 +11,4 @@ public interface Connection {
     public Client getClientInfo();
     public void setClientInfo(Client c);
     public String getHostNameInfo();
-    public Modes getModes();
 }

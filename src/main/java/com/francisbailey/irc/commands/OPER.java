@@ -23,7 +23,7 @@ public class OPER implements Executable {
 
             if (inputUsername.equals(username) && inputPassword.equals(password)) {
                 c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_YOUREOP, c.getClientInfo().getNick() + " :You are now an IRC operator"));
-                c.getModes().addMode(instance, "o");
+                instance.getModeControl().addTargetMode("o", (ModeTarget)c, instance);
                 USERMODE m = new USERMODE();
                 m.sendUsermode(c, instance);
 

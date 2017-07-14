@@ -11,17 +11,15 @@ import java.util.ArrayList;
 /**
  * Created by fbailey on 05/05/17.
  */
-public class MockConnection implements Connection {
+public class MockConnection implements Connection, ModeTarget {
 
     private ArrayList<SendableMessage> outputBuffer;
     private Client clientInfo;
     private Boolean registered;
-    private Modes modes;
 
 
     public MockConnection() {
         this.outputBuffer = new ArrayList<>();
-        this.modes = new Modes();
     }
 
 
@@ -84,7 +82,7 @@ public class MockConnection implements Connection {
     }
 
     @Override
-    public Modes getModes() {
-        return this.modes;
+    public String getTargetType() {
+        return "mock-user";
     }
 }

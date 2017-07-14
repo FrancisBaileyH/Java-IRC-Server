@@ -3,7 +3,7 @@ package com.francisbailey.irc;
 /**
  * Created by fbailey on 16/11/16.
  */
-public interface ServerManager extends ModeContext {
+public interface ServerManager extends ModeResource {
 
     public String getName();
     public void closeConnection(Connection c);
@@ -12,5 +12,5 @@ public interface ServerManager extends ModeContext {
     public Config getConfig();
     public ChannelManager getChannelManager();
     public void broadcast(ServerMessage sm);
-    public UserModes getModeTypes();
+    public ModeControl getModeControl();
 }

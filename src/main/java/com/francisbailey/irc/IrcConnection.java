@@ -20,7 +20,6 @@ public class IrcConnection implements Runnable, Connection, ModeTarget {
     private Boolean registered;
     private Client clientInfo;
     private ConnectionDelegate delegate;
-    private Modes modes;
 
 
     public IrcConnection(Socket s, ConnectionDelegate d) {
@@ -29,7 +28,6 @@ public class IrcConnection implements Runnable, Connection, ModeTarget {
         this.terminated = false;
         this.registered = false;
         this.clientInfo = new Client(null, null, null, null);
-        this.modes = new Modes();
     }
 
 
@@ -126,8 +124,7 @@ public class IrcConnection implements Runnable, Connection, ModeTarget {
     }
 
     @Override
-    public Modes getModes() {
-        return this.modes;
+    public String getTargetType() {
+        return "user";
     }
-
 }

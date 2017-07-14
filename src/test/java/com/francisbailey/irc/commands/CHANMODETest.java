@@ -1,9 +1,6 @@
 package com.francisbailey.irc.commands;
 
-import com.francisbailey.irc.MockRegisteredConnectionFactory;
-import com.francisbailey.irc.Channel;
-import com.francisbailey.irc.ClientMessage;
-import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.*;
 import com.francisbailey.irc.commands.internal.CHANMODE;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,16 +35,16 @@ public class CHANMODETest extends CommandTest {
     public void testNonOPChangeModes() throws Exception {
 
         CHANMODE exe = new CHANMODE();
-        this.testChannel.getModes().addMode(this.testChannel, "i");
+        this.mc.addTargetMode("i", (ModeTarget)this.chanUser, this.testChannel);
 
         ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +t");
         ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -i");
 
         exe.execute(this.chanUser, cmA, this.sm);
-        assertFalse(this.testChannel.getModes().hasMode(this.testChannel, "t"));
+        assertFalse(this.mc.targetHasMode("t", (ModeTarget)this.chanUser, this.testChannel));
 
         exe.execute(this.chanUser, cmB, this.sm);
-        assertTrue(this.testChannel.getModes().hasMode(this.testChannel, "i"));
+        assertTrue(this.mc.targetHasMode("i", (ModeTarget)this.chanUser, this.testChannel));
     }
 
 
@@ -66,10 +63,10 @@ public class CHANMODETest extends CommandTest {
         ClientMessage cmC = this.cp.parse("MODE " + this.channelName + " +v " + "nonExistantUser");
 
         exe.execute(chanOp, cmA, this.sm);
-        assertTrue(this.chanUser.getModes().hasMode(this.testChannel, "v"));
+        assertTrue(this.mc.targetHasMode("v", (ModeTarget)this.chanUser, this.testChannel));
 
         exe.execute(chanOp, cmB, this.sm);
-        assertFalse(this.chanUser.getModes().hasMode(this.testChannel, "v"));
+        assertFalse(this.mc.targetHasMode("v", (ModeTarget)this.chanUser, this.testChannel));
 
         // @TODO assert user not on channel doesn't have mode added
     }
@@ -87,10 +84,10 @@ public class CHANMODETest extends CommandTest {
         ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -m");
 
         exe.execute(chanOp, cmA, this.sm);
-        assertTrue(this.testChannel.getModes().hasMode(this.testChannel, "m"));
+        assertTrue(this.mc.targetHasMode("m", (ModeTarget)this.chanUser, this.testChannel));
 
         exe.execute(chanOp, cmB, this.sm);
-        assertFalse(this.testChannel.getModes().hasMode(this.testChannel, "m"));
+        assertFalse(this.mc.targetHasMode("m", (ModeTarget)this.chanUser, this.testChannel));
     }
 
 
