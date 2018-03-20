@@ -13,6 +13,7 @@ import java.util.List;
 public class ChannelManager {
 
     private HashMap<String, Channel> channels;
+    private final static String[] channelPrefixes = {"&" , "!", "+", "#"};
 
     /**
      * Loop through the configuration and generate channels.
@@ -43,13 +44,47 @@ public class ChannelManager {
 
 
     /**
+     * Channels names are strings (beginning with a '&', '#', '+' or '!'
+     * character) of length up to fifty (50) characters.  Channel names are
+     * case insensitive.
      * Check if target is an existing channel
      * @param target
      * @return
      */
-    public Boolean isChannel(String target) {
+    public boolean isChannel(String target) {
 
-        return target.startsWith("#") && channels.containsKey(target);
+        return isChannelType(target) && channels.containsKey(target);
+    }
+
+
+    public boolean isValidChannelName(String name) {
+
+        if (!isChannelType(name)) {
+            return false;
+        }
+
+        if (name.length() > 50) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     *
+     * @param target
+     * @return
+     */
+    public static boolean isChannelType(String target) {
+
+        for (int i = 0; i < channelPrefixes.length; i++) {
+            if (target.startsWith(channelPrefixes[i])) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 

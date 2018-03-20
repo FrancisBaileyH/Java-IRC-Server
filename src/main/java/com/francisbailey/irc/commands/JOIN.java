@@ -1,7 +1,6 @@
 package com.francisbailey.irc.commands;
 
 import com.francisbailey.irc.*;
-
 import java.util.ArrayList;
 
 /**
@@ -26,7 +25,18 @@ public class JOIN implements Executable {
         else {
 
             Channel chan = chanManager.getChannel(channel);
-            chan.join(c);
+
+            ArrayList<Connection> channelUsers = chan.getUsers();
+
+            if (channelUsers.indexOf(c) <= 0) {
+
+                chan.addUser(c);
+
+                String hostmask = c.getClientInfo().getHostmask();
+                ServerMessage sm = new ServerMessage(hostmask, ServerMessage.RPL_JOIN, chan.getName());
+                chan.broadcast(sm);
+            }
+
             c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_TOPIC, nick + " " + channel + " :" + chan.getTopic()));
             this.sendChannelUsers(c, chan, instance.getName());
         }

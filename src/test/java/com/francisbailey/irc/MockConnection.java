@@ -1,9 +1,6 @@
 package com.francisbailey.irc;
 
-import com.francisbailey.irc.Client;
-import com.francisbailey.irc.Connection;
-import com.francisbailey.irc.Modes;
-import com.francisbailey.irc.SendableMessage;
+import com.francisbailey.irc.modes.ModeSet;
 
 
 import java.util.ArrayList;
@@ -11,15 +8,17 @@ import java.util.ArrayList;
 /**
  * Created by fbailey on 05/05/17.
  */
-public class MockConnection implements Connection, ModeTarget {
+public class MockConnection implements Connection {
 
     private ArrayList<SendableMessage> outputBuffer;
     private Client clientInfo;
     private Boolean registered;
+    private ModeSet modes;
 
 
     public MockConnection() {
         this.outputBuffer = new ArrayList<>();
+        this.modes = new ModeSet();
     }
 
 
@@ -82,7 +81,11 @@ public class MockConnection implements Connection, ModeTarget {
     }
 
     @Override
-    public String getTargetType() {
-        return "mock-user";
+    public ModeSet getModes() {
+        return this.modes;
+    }
+
+    public void setModes(ModeSet ms) {
+        this.modes = ms;
     }
 }

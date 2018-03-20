@@ -1,6 +1,7 @@
 package com.francisbailey.irc.commands;
 
 import com.francisbailey.irc.*;
+import com.francisbailey.irc.modes.UserModes;
 
 /**
  * Created by fbailey on 04/12/16.
@@ -16,7 +17,7 @@ public class WHO implements Executable {
 
             for (Connection user: chan.getUsers()) {
 
-                if (!instance.getModeControl().targetHasMode("i", (ModeTarget)user, chan)) {
+                if (!c.getModes().hasMode(UserModes.INVISIBLE.toString())) {
                     Client ci = user.getClientInfo();
                     String message = ci.getNick();
                     message += " " + chan.getName();

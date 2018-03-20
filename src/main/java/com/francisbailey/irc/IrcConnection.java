@@ -1,5 +1,7 @@
 package com.francisbailey.irc;
 
+import com.francisbailey.irc.modes.ModeSet;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -10,7 +12,7 @@ import java.net.Socket;
 /**
  * @TODO PING Timer & Registration Timer
  */
-public class IrcConnection implements Runnable, Connection, ModeTarget {
+public class IrcConnection implements Runnable, Connection {
 
 
     private Socket socket;
@@ -20,6 +22,7 @@ public class IrcConnection implements Runnable, Connection, ModeTarget {
     private Boolean registered;
     private Client clientInfo;
     private ConnectionDelegate delegate;
+    private ModeSet modes;
 
 
     public IrcConnection(Socket s, ConnectionDelegate d) {
@@ -28,10 +31,13 @@ public class IrcConnection implements Runnable, Connection, ModeTarget {
         this.terminated = false;
         this.registered = false;
         this.clientInfo = new Client(null, null, null, null);
+        this.modes = new ModeSet();
     }
 
 
     /**
+     * @TODO - this is susceptible to a readLine DOS attack. We need a bounded buffered reader
+     *
      * Initialize input and output streams and begin listening for
      * incoming messages.
      */
@@ -123,8 +129,11 @@ public class IrcConnection implements Runnable, Connection, ModeTarget {
         return this.socket.getInetAddress().getCanonicalHostName();
     }
 
-    @Override
-    public String getTargetType() {
-        return "user";
+    public ModeSet getModes() {
+        return this.modes;
+    }
+
+    public void setModes(ModeSet s) {
+        this.modes = s;
     }
 }

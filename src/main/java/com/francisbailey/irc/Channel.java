@@ -1,14 +1,17 @@
 package com.francisbailey.irc;
 
-import java.util.ArrayList;
+import com.francisbailey.irc.modes.Mode;
+import com.francisbailey.irc.modes.ModeSet;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
  * @TODO MaxUserLimit dynamically set from config
  * Created by fbailey on 01/12/16.
  */
-public class Channel implements ModeResource, ModeTarget {
+public class Channel {
 
     private String topic;
     private String name;
@@ -20,6 +23,8 @@ public class Channel implements ModeResource, ModeTarget {
     private String banExceptionMask;
 
     private ArrayList<Connection> users;
+    private ModeSet modes;
+    private HashMap<Connection, ModeSet> channelUserModes;
 
 
     public Channel(String name, String topic) {
@@ -27,44 +32,113 @@ public class Channel implements ModeResource, ModeTarget {
         this.name = name;
         this.topic = topic;
         this.users = new ArrayList<>();
+        this.modes = new ModeSet();
+        this.channelUserModes = new HashMap<>();
+    }
+
+    /**
+     *
+     * @param mode
+     */
+    public synchronized boolean addMode(Mode mode) {
+        return this.modes.addMode(mode);
+    }
+
+    /**
+     *
+     */
+    public synchronized String getModes() {
+        return this.modes.getModes();
+    }
+
+    /**
+     *
+     * @param mode
+     * @return
+     */
+    public synchronized boolean removeMode(Mode mode) {
+        return this.modes.removeMode(mode);
     }
 
 
     /**
-     * Broadcast a JOIN message when a user joins the channel
+     *
      * @param c
      */
-    public synchronized void join(Connection c) {
-
-        if (this.users.indexOf(c) <= 0) {
-
+    public synchronized void addUser(Connection c) {
+        if (!this.users.contains(c)) {
             this.users.add(c);
-
-            String hostmask = c.getClientInfo().getHostmask();
-            ServerMessage sm = new ServerMessage(hostmask, ServerMessage.RPL_JOIN, this.name);
-            this.broadcast(sm);
         }
     }
 
 
     /**
-     * Broadcast a part message when a user leaves the channel
+     *
      * @param c
      */
-    public synchronized void part(Connection c, String message) {
-
-        String m = this.name;
-
-        if (message != null && !message.equals("")) {
-            m += " :" + message;
-        }
-
+    public synchronized void removeUser(Connection c) {
         if (this.users.contains(c)) {
-            String hostmask = c.getClientInfo().getHostmask();
-            ServerMessage sm = new ServerMessage(hostmask, ServerMessage.RPL_PART, m);
-            this.broadcast(sm);
             this.users.remove(c);
         }
+    }
+
+
+    /**
+     * @TODO should we throw exception?
+     * @param c
+     * @param mode
+     */
+    public synchronized void addModeForUser(Connection c, Mode mode) {
+
+        if (this.hasUser(c)) {
+
+            ModeSet ms;
+
+            if (this.channelUserModes.containsKey(c)) {
+                ms = this.channelUserModes.get(c);
+            } else {
+                ms = new ModeSet();
+            }
+
+            ms.addMode(mode);
+            this.channelUserModes.put(c, ms);
+        }
+    }
+
+
+    /**
+     * @TODO should we throw an exception?
+     * @param c
+     * @param mode
+     */
+    public synchronized void removeModeForUser(Connection c, Mode mode) {
+        if (this.channelUserModes.containsKey(c)) {
+
+            ModeSet ms = this.channelUserModes.get(c);
+            ms.removeMode(mode);
+            this.channelUserModes.put(c, ms);
+        }
+    }
+
+
+    public synchronized boolean hasModeForUser(Connection c, Mode mode) {
+        if (this.channelUserModes.containsKey(c)) {
+            ModeSet ms = this.channelUserModes.get(c);
+
+            return ms.hasMode(mode);
+        }
+
+        return false;
+    }
+
+
+    /**
+     *
+     * @param c
+     * @return
+     */
+    public synchronized ModeSet getModesForUser(Connection c) {
+        return this.channelUserModes.get(c);
     }
 
 
@@ -90,7 +164,19 @@ public class Channel implements ModeResource, ModeTarget {
      */
     public synchronized ArrayList<Connection> getUsers() {
 
-        return this.users;
+        return (ArrayList<Connection>)this.users.clone();
+    }
+
+
+    public synchronized boolean hasUser(String nick) {
+
+        for (Connection user: this.users) {
+            if (user.getClientInfo().getNick().equals(nick)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
 
@@ -99,9 +185,26 @@ public class Channel implements ModeResource, ModeTarget {
      * @param c
      * @return
      */
-    public synchronized Boolean hasUser(Connection c) {
+    public synchronized boolean hasUser(Connection c) {
 
         return this.users.contains(c);
+    }
+
+
+    /**
+     *
+     * @param nick
+     * @return
+     */
+    public synchronized Connection findConnectionByNick(String nick) {
+
+        for (Connection user: this.users) {
+            if (user.getClientInfo().getNick().equals(nick)) {
+                return user;
+            }
+        }
+
+        return null;
     }
 
 
@@ -140,19 +243,6 @@ public class Channel implements ModeResource, ModeTarget {
             }
         }
     }
-
-
-    @Override
-    public String getResourceName() {
-        return this.name;
-    }
-
-
-    @Override
-    public String getResourceType() {
-        return "channel";
-    }
-
 
     public synchronized void setUserLimit(int userLimit) {
         this.userLimit = userLimit;
@@ -199,10 +289,5 @@ public class Channel implements ModeResource, ModeTarget {
 
     public synchronized String getBanExceptionMask() {
         return banExceptionMask;
-    }
-
-    @Override
-    public String getTargetType() {
-        return "channel";
     }
 }

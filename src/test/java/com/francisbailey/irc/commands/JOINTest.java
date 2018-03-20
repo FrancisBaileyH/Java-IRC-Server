@@ -53,8 +53,8 @@ public class JOINTest extends CommandTest {
         MockConnection userB = MockRegisteredConnectionFactory.build();
         MockConnection joiner = MockRegisteredConnectionFactory.build();
 
-        this.cm.getChannel("#general").join(userA);
-        this.cm.getChannel("#general").join(userB);
+        this.cm.getChannel("#general").addUser(userA);
+        this.cm.getChannel("#general").addUser(userB);
 
         ClientMessage cm = this.cp.parse("JOIN #general");
         Executable exe = new JOIN();

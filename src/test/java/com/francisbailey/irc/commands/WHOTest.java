@@ -36,12 +36,12 @@ public class WHOTest extends CommandTest {
         MockConnection userD = MockRegisteredConnectionFactory.build();
 
         Channel c = this.sm.getChannelManager().getChannel("#foo");
-        c.join(userA);
-        c.join(userB);
-        c.join(userC);
-        c.join(userD);
+        c.addUser(userA);
+        c.addUser(userB);
+        c.addUser(userC);
+        c.addUser(userD);
 
-        this.mc.addTargetMode("i", userD, c);
+        userD.getModes().addMode("i");
         userA.clearOutputBuffer();
 
         ClientMessage cm = this.cp.parse("WHO #foo");

@@ -1,6 +1,7 @@
 package com.francisbailey.irc.commands;
 
 import com.francisbailey.irc.*;
+import com.sun.security.ntlm.*;
 
 import java.util.ArrayList;
 
@@ -22,7 +23,7 @@ public class PRIVMSG implements Executable {
             Channel chan = instance.getChannelManager().getChannel(target);
             sendChannelMessage(c, chan, target, message);
         }
-        else if (target.startsWith("#")){
+        else if (instance.getChannelManager().isChannelType(target)){
             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, c.getClientInfo().getNick()));
         }
         else {
@@ -55,7 +56,8 @@ public class PRIVMSG implements Executable {
             chan.broadcast(sm, excluded);
         }
         else {
-            //error
+            ServerMessage sm = new ServerMessage(c.getClientInfo().getHostmask(), ServerMessage.ERR_NOTONCHANNEL, c.getClientInfo().getNick() + " : not on channel");
+            c.send(sm);
         }
     }
 

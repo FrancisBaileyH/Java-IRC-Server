@@ -21,8 +21,9 @@ public class MODE implements Executable {
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
         String target = cm.getParameter(0);
+        ChannelManager channelManager = instance.getChannelManager();
 
-        if (target.startsWith("#")) {
+        if (channelManager.isChannelType(target)) {
             Executable exe = new CHANMODE();
             exe.execute(c, cm, instance);
         }

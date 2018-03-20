@@ -10,7 +10,6 @@ import java.util.ArrayList;
 public class QUIT implements Executable {
 
 
-
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
         ArrayList<Channel> channels = instance.getChannelManager().getChannelsByUser(c);
@@ -24,7 +23,8 @@ public class QUIT implements Executable {
         }
 
         for (Channel chan: channels) {
-            chan.part(c, message);
+            PART command = new PART();
+            command.partFromChannel(chan, c, message);
         }
 
         c.send(new ServerMessage(c.getClientInfo().getHostmask(), ServerMessage.RPL_QUIT, ":" + message));

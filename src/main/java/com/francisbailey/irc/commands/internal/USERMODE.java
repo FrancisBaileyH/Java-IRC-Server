@@ -1,6 +1,9 @@
 package com.francisbailey.irc.commands.internal;
 
+
 import com.francisbailey.irc.*;
+import com.francisbailey.irc.modes.ModeSet;
+import com.francisbailey.irc.modes.UserModes;
 
 /**
  * Created by fbailey on 07/05/17.
@@ -10,8 +13,11 @@ public class USERMODE implements Executable {
     @Override
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
+        String targetNick = cm.getParameter(0);
+        String nick = c.getClientInfo().getNick();
+
         // Check if nick matches user
-        if (!c.getClientInfo().getNick().equals(cm.getParameter(0))) {
+        if (!targetNick.equals(nick) && c.getModes().hasMode(UserModes.OPERATOR.toString())) {
             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_USERSDONTMATCH, ": Can't change mode for other users"));
         }
         else if (cm.getParameterCount() < 2) {
@@ -20,9 +26,8 @@ public class USERMODE implements Executable {
         else {
 
             String modeAction = cm.getParameter(1);
-            ModeControl mc = instance.getModeControl();
 
-            if (modeAction.length() != 2 || !mc.isValidMode(modeAction.substring(1), (ModeTarget)c, instance)
+            if (modeAction.length() != 2 || !UserModes.contains(modeAction.substring(1))
             || (!modeAction.startsWith("+") && !modeAction.startsWith("-"))) {
 
                 c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UMODEUNKNOWNFLAG, ": Unknown umode flag"));
@@ -51,8 +56,8 @@ public class USERMODE implements Executable {
     public void sendUsermode(Connection c, ServerManager instance) {
 
         String nick = c.getClientInfo().getNick();
-        String modeis = instance.getModeControl().getTargetModes((ModeTarget)c, instance);
-        c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_UMODEIS, nick + " :+" + modeis));
+        String modes = c.getModes().toString();
+        c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_UMODEIS, nick + " :+" + modes));
     }
 
 
@@ -63,7 +68,9 @@ public class USERMODE implements Executable {
     private void handleAddMode(Connection c, ServerManager instance, String mode) {
 
         if (!mode.equals("o") && !mode.equals("O") && !mode.equals("a")) {
-            instance.getModeControl().addTargetMode(mode, (ModeTarget)c, instance);
+            ModeSet ms = c.getModes();
+            ms.addMode(mode);
+            c.setModes(ms);
         }
     }
 
@@ -77,7 +84,9 @@ public class USERMODE implements Executable {
     private void handleRemoveMode(Connection c, ServerManager instance, String mode) {
 
         if (!mode.equals("r")) {
-            instance.getModeControl().removeTargetMode(mode, (ModeTarget)c, instance);
+            ModeSet ms = c.getModes();
+            ms.removeMode(mode);
+            c.setModes(ms);
         }
     }
 

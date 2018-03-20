@@ -19,7 +19,6 @@ public class Server implements ConnectionDelegate, ServerManager {
     private CommandParser parser;
     private CommandFactory cf;
     private ChannelManager cm;
-    private ModeControl mc;
     private String name;
 
 
@@ -36,7 +35,6 @@ public class Server implements ConnectionDelegate, ServerManager {
         this.config = config;
         this.cm = new ChannelManager(config.channels);
         this.name = config.serverName;
-        this.mc = new ModeControl(config.defaultModes);
 
         try {
             this.socket = new ServerSocket(port);
@@ -115,7 +113,6 @@ public class Server implements ConnectionDelegate, ServerManager {
 
         this.connections.remove(c);
         this.registeredConnections.remove(c);
-        this.mc.removeTarget((ModeTarget)c);
         c.terminate();
     }
 
@@ -188,22 +185,5 @@ public class Server implements ConnectionDelegate, ServerManager {
         for (Connection c: this.registeredConnections) {
             c.send(sm);
         }
-    }
-
-    @Override
-    public ModeControl getModeControl() {
-        return this.mc;
-    }
-
-
-    @Override
-    public String getResourceName() {
-        return config.networkName;
-    }
-
-
-    @Override
-    public String getResourceType() {
-        return "server";
     }
 }

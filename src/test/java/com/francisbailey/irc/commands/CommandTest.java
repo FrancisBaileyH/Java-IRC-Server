@@ -15,7 +15,6 @@ public class CommandTest {
     protected ServerManager sm;
     protected ChannelManager cm;
     protected CommandParser cp;
-    protected ModeControl mc;
 
     @Before
     public void setUp() throws Exception {
@@ -26,7 +25,6 @@ public class CommandTest {
         this.cm = new ChannelManager(config.channels);
         this.sm = new MockServerManager("mockserver", this.cm);
         this.cp = new CommandParser();
-        this.mc = this.sm.getModeControl();
     }
 
 }

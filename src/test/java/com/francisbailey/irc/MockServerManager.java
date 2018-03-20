@@ -14,7 +14,6 @@ public class MockServerManager implements ServerManager {
     private MockConfig config;
     private ChannelManager cm;
     private String name;
-    private ModeControl mc;
     public ArrayList<Connection> connections;
     public ArrayList<Connection> registeredConnections;
 
@@ -25,7 +24,6 @@ public class MockServerManager implements ServerManager {
         this.connections = new ArrayList<>();
         this.registeredConnections = new ArrayList<>();
         this.config = new MockConfig();
-        this.mc = new ModeControl(this.config.defaultModes);
     }
 
 
@@ -63,20 +61,5 @@ public class MockServerManager implements ServerManager {
     @Override
     public void broadcast(ServerMessage sm) {
 
-    }
-
-    @Override
-    public ModeControl getModeControl() {
-        return this.mc;
-    }
-
-    @Override
-    public String getResourceName() {
-        return this.name;
-    }
-
-    @Override
-    public String getResourceType() {
-        return "server";
     }
 }
