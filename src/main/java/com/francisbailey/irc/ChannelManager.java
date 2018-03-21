@@ -24,7 +24,6 @@ public class ChannelManager {
         this.channels = new HashMap<>();
 
         for (HierarchicalConfiguration channel: channels) {
-
             String chanName = channel.getString("name");
             String topic = channel.getString("topic");
             this.addChannel(chanName, topic);

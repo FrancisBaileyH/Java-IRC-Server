@@ -1,5 +1,6 @@
 package com.francisbailey.irc;
 
+import com.francisbailey.irc.mode.Mode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -76,7 +77,7 @@ public class ChannelTest {
         Connection c = MockRegisteredConnectionFactory.build();
         this.chan.addUser(c);
 
-        String mode = "f";
+        Mode mode = new Mode("f", "MOCK_MODE");
 
         this.chan.addModeForUser(c, mode);
         assertTrue(this.chan.hasModeForUser(c, mode));

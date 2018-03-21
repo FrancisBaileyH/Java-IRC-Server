@@ -1,7 +1,7 @@
 package com.francisbailey.irc;
 
-import com.francisbailey.irc.modes.Mode;
-import com.francisbailey.irc.modes.ModeSet;
+import com.francisbailey.irc.mode.Mode;
+import com.francisbailey.irc.mode.ModeSet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,6 +58,11 @@ public class Channel {
      */
     public synchronized boolean removeMode(Mode mode) {
         return this.modes.removeMode(mode);
+    }
+
+
+    public synchronized boolean hasMode(Mode mode) {
+        return this.modes.hasMode(mode);
     }
 
 

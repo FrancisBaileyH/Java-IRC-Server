@@ -5,6 +5,8 @@ package com.francisbailey.irc;
  */
 
 
+import com.francisbailey.irc.exception.MissingCommandParametersException;
+
 import java.util.ArrayList;
 
 

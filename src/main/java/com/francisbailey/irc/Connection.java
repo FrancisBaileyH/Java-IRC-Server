@@ -1,6 +1,6 @@
 package com.francisbailey.irc;
 
-import com.francisbailey.irc.modes.ModeSet;
+import com.francisbailey.irc.mode.ModeSet;
 
 /**
  * Created by fbailey on 05/05/17.

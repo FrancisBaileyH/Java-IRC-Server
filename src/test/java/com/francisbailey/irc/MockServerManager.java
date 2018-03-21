@@ -1,8 +1,6 @@
 package com.francisbailey.irc;
 
 
-import com.francisbailey.irc.*;
-
 import java.util.ArrayList;
 
 /**
@@ -17,6 +15,8 @@ public class MockServerManager implements ServerManager {
     public ArrayList<Connection> connections;
     public ArrayList<Connection> registeredConnections;
 
+    private Connection findNickValue;
+
 
     public MockServerManager(String name, ChannelManager cm) {
         this.name = name;
@@ -24,6 +24,7 @@ public class MockServerManager implements ServerManager {
         this.connections = new ArrayList<>();
         this.registeredConnections = new ArrayList<>();
         this.config = new MockConfig();
+        this.findNickValue = null;
     }
 
 
@@ -44,7 +45,11 @@ public class MockServerManager implements ServerManager {
 
     @Override
     public Connection findConnectionByNick(String nick) {
-        return null;
+        return this.findNickValue;
+    }
+
+    public void setFindNickValue(Connection c) {
+        this.findNickValue = c;
     }
 
     @Override

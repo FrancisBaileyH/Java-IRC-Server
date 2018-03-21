@@ -1,5 +1,8 @@
 package com.francisbailey.irc;
 
+import com.francisbailey.irc.exception.InvalidCommandException;
+import com.francisbailey.irc.exception.MissingCommandParametersException;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -70,7 +73,7 @@ public class Server implements ConnectionDelegate, ServerManager {
 
 
     /**
-     * Parse and execute incoming String commands from connections.
+     * Parse and execute incoming String command from connections.
      * @param c
      * @param command
      */

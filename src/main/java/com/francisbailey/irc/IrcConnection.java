@@ -1,6 +1,6 @@
 package com.francisbailey.irc;
 
-import com.francisbailey.irc.modes.ModeSet;
+import com.francisbailey.irc.mode.ModeSet;
 
 import java.io.*;
 import java.net.Socket;
@@ -102,7 +102,7 @@ public class IrcConnection implements Runnable, Connection {
 
 
     /**
-     * The client is now registered and can accept and execute more commands
+     * The client is now registered and can accept and execute more command
      * on the server. ClientInfo is also attached to the connection.
      * @param clientInfo
      */
