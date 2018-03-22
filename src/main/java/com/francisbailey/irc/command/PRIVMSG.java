@@ -55,7 +55,7 @@ public class PRIVMSG implements Executable {
             chan.broadcast(sm, excluded);
         }
         else {
-            ServerMessage sm = new ServerMessage(c.getClientInfo().getHostmask(), ServerMessage.ERR_NOTONCHANNEL, c.getClientInfo().getNick() + " : not on channel");
+            ServerMessage sm = new ServerMessage(c.getClientInfo().getHostmask(), ServerMessage.ERR_NOTONCHANNEL, c.getClientInfo().getNick() + " :not on channel");
             c.send(sm);
         }
     }

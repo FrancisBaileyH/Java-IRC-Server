@@ -21,12 +21,13 @@ public class CHANMODE implements Executable {
 
         String chanName = cm.getParameter(0);
         Channel channel = instance.getChannelManager().getChannel(chanName);
+        String nick = c.getClientInfo().getNick();
 
         if (channel == null) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, " :No such channel, can't change mode"));
+            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, nick + " " + chanName + " :No such channel, can't change mode"));
         }
         else if (cm.getParameterCount() < 2) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, " : +" + channel.getModes().toString()));
+            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, nick + " " + chanName + " +" + channel.getModes()));
         }
         else {
             this.handleChanMode(channel, c, cm, instance);
@@ -48,11 +49,13 @@ public class CHANMODE implements Executable {
     private void handleChanMode(Channel channel, Connection c, ClientMessage cm, ServerManager instance) {
 
         String modeAction = cm.getParameter(1);
+        String nick = c.getClientInfo().getNick();
+        String message = nick + " " + channel.getName();
 
         if (cm.getParameterCount() >= 2) {
 
-            if (!channel.hasModeForUser(c, ModeSet.CHAN_OPERATOR) && !channel.hasModeForUser(c, ModeSet.OWNER)) {
-                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOPRIVILEGES, ":Must be operator to change channel mode"));
+            if (!channel.hasModeForUser(c, ModeSet.CHAN_OPERATOR) && !channel.hasModeForUser(c, ModeSet.OWNER) && !c.getModes().hasMode(ModeSet.OPERATOR)) {
+                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOPRIVILEGES, nick + " :Must be operator to change channel mode"));
             }
             else {
                 /**
@@ -81,12 +84,15 @@ public class CHANMODE implements Executable {
                             struct.strategy.removeMode(channel, c, struct.mode, struct.arg);
                         }
                     }
+
+                    c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, message + " +" + channel.getModes()));
+
                 } catch (MissingModeArgumentException e) {
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, ":Missing mode argument"));
+                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, message + " :Missing mode argument"));
                 } catch (ModeNotFoundException e) {
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, ":Unknown mode"));
+                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, message + " :Unknown mode"));
                 } catch (Exception e) {
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, ":Unable to parse mode arguments"));
+                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, message  + " :Unable to parse mode arguments"));
                 }
             }
         }
