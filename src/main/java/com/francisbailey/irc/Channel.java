@@ -5,6 +5,8 @@ import com.francisbailey.irc.mode.ModeSet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.ListIterator;
+import java.util.regex.Pattern;
 
 
 /**
@@ -18,10 +20,8 @@ public class Channel {
 
     private int userLimit;
     private String key;
-    private String banMask;
-    private String invitationMask;
-    private String banExceptionMask;
 
+    private HashMap<Mode,ArrayList<Pattern>> masks;
     private ArrayList<Connection> users;
     private ModeSet modes;
     private HashMap<Connection, ModeSet> channelUserModes;
@@ -34,10 +34,12 @@ public class Channel {
         this.users = new ArrayList<>();
         this.modes = new ModeSet();
         this.channelUserModes = new HashMap<>();
+
+        this.masks = new HashMap<>();
     }
 
     /**
-     *
+     * Add a mode to a channel if it doesn't already have the given mode
      * @param mode
      */
     public synchronized boolean addMode(Mode mode) {
@@ -46,12 +48,14 @@ public class Channel {
 
     /**
      *
+     * @return
      */
     public synchronized String getModes() {
         return this.modes.getModes();
     }
 
     /**
+     * Remove a mode if the channel has one
      *
      * @param mode
      * @return
@@ -61,13 +65,18 @@ public class Channel {
     }
 
 
+    /**
+     * Verify that the channel has a given mode
+     * @param mode
+     * @return
+     */
     public synchronized boolean hasMode(Mode mode) {
         return this.modes.hasMode(mode);
     }
 
 
     /**
-     *
+     * Add a user to the channel
      * @param c
      */
     public synchronized void addUser(Connection c) {
@@ -78,7 +87,7 @@ public class Channel {
 
 
     /**
-     *
+     * Remove a user from the channel
      * @param c
      */
     public synchronized void removeUser(Connection c) {
@@ -89,14 +98,12 @@ public class Channel {
 
 
     /**
-     * @TODO should we throw exception?
+     * Add a mode for a given user
      * @param c
      * @param mode
      */
     public synchronized void addModeForUser(Connection c, Mode mode) {
-
         if (this.hasUser(c)) {
-
             ModeSet ms;
 
             if (this.channelUserModes.containsKey(c)) {
@@ -112,13 +119,12 @@ public class Channel {
 
 
     /**
-     * @TODO should we throw an exception?
+     * Remove a mode for a given channel user
      * @param c
      * @param mode
      */
     public synchronized void removeModeForUser(Connection c, Mode mode) {
         if (this.channelUserModes.containsKey(c)) {
-
             ModeSet ms = this.channelUserModes.get(c);
             ms.removeMode(mode);
             this.channelUserModes.put(c, ms);
@@ -126,6 +132,12 @@ public class Channel {
     }
 
 
+    /**
+     * Check if a channel user has a given mode
+     * @param c
+     * @param mode
+     * @return
+     */
     public synchronized boolean hasModeForUser(Connection c, Mode mode) {
         if (this.channelUserModes.containsKey(c)) {
             ModeSet ms = this.channelUserModes.get(c);
@@ -138,7 +150,7 @@ public class Channel {
 
 
     /**
-     *
+     * Get all channel modes for a user
      * @param c
      * @return
      */
@@ -152,7 +164,6 @@ public class Channel {
      * @return
      */
     public synchronized ArrayList<String> getNicks() {
-
         ArrayList<String> nicks = new ArrayList<>();
 
         for (Connection con: this.users) {
@@ -173,25 +184,12 @@ public class Channel {
     }
 
 
-    public synchronized boolean hasUser(String nick) {
-
-        for (Connection user: this.users) {
-            if (user.getClientInfo().getNick().equals(nick)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
     /**
      * Check for the existence of a user in a channel
      * @param c
      * @return
      */
     public synchronized boolean hasUser(Connection c) {
-
         return this.users.contains(c);
     }
 
@@ -202,7 +200,6 @@ public class Channel {
      * @return
      */
     public synchronized Connection findConnectionByNick(String nick) {
-
         for (Connection user: this.users) {
             if (user.getClientInfo().getNick().equals(nick)) {
                 return user;
@@ -213,11 +210,19 @@ public class Channel {
     }
 
 
+    /**
+     * Get the channel topic
+     * @return
+     */
     public String getTopic() {
         return this.topic;
     }
 
 
+    /**
+     * Get the channel name
+     * @return
+     */
     public String getName() {
         return this.name;
     }
@@ -228,7 +233,6 @@ public class Channel {
      * @param sm
      */
     public synchronized void broadcast(ServerMessage sm) {
-
         this.broadcast(sm, null);
     }
 
@@ -240,17 +244,76 @@ public class Channel {
      * @param exclude
      */
     public synchronized void broadcast(ServerMessage sm, ArrayList<Connection> exclude) {
-
         for (Connection c: this.users) {
-
             if (exclude == null || !exclude.contains(c)) {
                 c.send(sm);
             }
         }
     }
 
-    public synchronized void setUserLimit(int userLimit) {
-        this.userLimit = userLimit;
+
+    /**
+     * Add a mask for a given mode
+     * @param mode
+     * @param mask
+     */
+    public synchronized void addMask(Mode mode, String mask) {
+
+        ArrayList<Pattern> masks = this.masks.get(mode);
+        Pattern maskPattern = Pattern.compile(mask);
+
+        if (masks == null) {
+            masks = new ArrayList<>();
+            masks.add(maskPattern);
+        } else if (!masks.contains(maskPattern)) {
+            masks.add(maskPattern);
+        }
+
+        this.masks.put(mode, masks);
+    }
+
+
+    /**
+     * Get all masks for a given mode
+     * @param mode
+     * @return
+     */
+    public synchronized ListIterator<Pattern> getMask(Mode mode) {
+        ArrayList<Pattern> masks = this.masks.get(mode);
+
+        if (masks != null && masks.size() > 0) {
+            return masks.listIterator();
+        }
+
+        return null;
+    }
+
+
+    /**
+     * Remove a mask if one exists for the given mode
+     * @param mode
+     * @param mask
+     */
+    public synchronized void removeMask(Mode mode, String mask) {
+        ArrayList<Pattern> masks = this.masks.get(mode);
+        Pattern maskPattern = Pattern.compile(mask);
+
+        if (masks != null && masks.contains(maskPattern)) {
+            masks.remove(maskPattern);
+        }
+    }
+
+
+    /**
+     * Clear all masks for a given mode
+     * @param mode
+     */
+    public synchronized void clearMasks(Mode mode) {
+        ArrayList<Pattern> masks = this.masks.get(mode);
+
+        if (masks != null) {
+            masks.clear();
+        }
     }
 
 
@@ -258,41 +321,17 @@ public class Channel {
         this.key = key;
     }
 
-    /**
-     * @TODO - just a placeholder. A channel can have multiple
-     * Ban Masks, so we'll have to come up with a proper strategy
-     * for managing them.
-     * @param banMask
-     */
-    public synchronized void setBanMask(String banMask) {
-        this.banMask = banMask;
-    }
-
-    public synchronized void setInvitationMask(String invitationMask) {
-        this.invitationMask = invitationMask;
-    }
-
-    public synchronized void setBanExceptionMask(String banExceptionMask) {
-        this.banExceptionMask = banExceptionMask;
-    }
-
-    public synchronized String getBanMask() {
-        return banMask;
-    }
 
     public synchronized String getKey() {
         return key;
     }
 
+
+    public synchronized void setUserLimit(int userLimit) {
+        this.userLimit = userLimit;
+    }
+
     public synchronized int getUserLimit() {
         return userLimit;
-    }
-
-    public synchronized String getInvitationMask() {
-        return invitationMask;
-    }
-
-    public synchronized String getBanExceptionMask() {
-        return banExceptionMask;
     }
 }

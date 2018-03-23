@@ -6,7 +6,7 @@ import com.francisbailey.irc.exception.MissingModeArgumentException;
 import com.francisbailey.irc.exception.ModeNotFoundException;
 import com.francisbailey.irc.mode.*;
 import com.francisbailey.irc.mode.strategy.ChannelModeStrategy;
-import com.francisbailey.irc.mode.strategy.ChannelModeStrategyStruct;
+
 
 import java.util.ArrayList;
 
@@ -16,6 +16,28 @@ import java.util.ArrayList;
  */
 public class CHANMODE implements Executable {
 
+
+    private class ChannelModeStrategyStruct {
+
+        Mode mode;
+        ChannelModeStrategy strategy;
+        String arg;
+        String operation;
+
+        ChannelModeStrategyStruct(ChannelModeStrategy s, Mode m, String op, String arg) {
+            this.strategy = s;
+            this.mode = m;
+            this.operation = op;
+            this.arg = arg;
+        }
+    }
+
+
+    /**
+     * @param c
+     * @param cm
+     * @param instance
+     */
     @Override
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
@@ -24,10 +46,10 @@ public class CHANMODE implements Executable {
         String nick = c.getClientInfo().getNick();
 
         if (channel == null) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, nick + " " + chanName + " :No such channel, can't change mode"));
+            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, chanName + " :No such channel, can't change mode"));
         }
         else if (cm.getParameterCount() < 2) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, nick + " " + chanName + " +" + channel.getModes()));
+            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, chanName + " +" + channel.getModes()));
         }
         else {
             this.handleChanMode(channel, c, cm, instance);
@@ -36,10 +58,8 @@ public class CHANMODE implements Executable {
 
 
     /**
-     *
-     * We can add a mode directly to the channel and we can add a mode directly to the channel user
-     *
-     * We have two operations per
+     * Mode arguments are complex and come in many forms. As a result, two different parse strategies must
+     * be used to separate mode flags and their arguments.
      *
      * @param channel
      * @param c
@@ -88,11 +108,11 @@ public class CHANMODE implements Executable {
                     c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, message + " +" + channel.getModes()));
 
                 } catch (MissingModeArgumentException e) {
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, message + " :Missing mode argument"));
+                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick + " :Missing mode argument"));
                 } catch (ModeNotFoundException e) {
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, message + " :Unknown mode"));
+                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, e.getMessage() + " :Unknown mode"));
                 } catch (Exception e) {
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, message  + " :Unable to parse mode arguments"));
+                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick  + " :Unable to parse mode arguments"));
                 }
             }
         }
@@ -100,7 +120,7 @@ public class CHANMODE implements Executable {
 
 
     /**
-     * Parse mode that come in the argument form of:
+     * Parse strategy for mode arguments in the form:
      * MODE #channel +ve <mask>
      * MODE #channel +be <mask1> <mask2>
      *
@@ -122,7 +142,7 @@ public class CHANMODE implements Executable {
             ChannelMode mode = ModeSet.chanModes.get(flag);
 
             if (mode == null) {
-                 throw new ModeNotFoundException();
+                 throw new ModeNotFoundException(flag);
             }
 
             String arg = null;
@@ -139,12 +159,7 @@ public class CHANMODE implements Executable {
             Class<? extends ChannelModeStrategy> strategy = mode.getStrategy();
 
             ChannelModeStrategy strategyInstance = strategy.newInstance();
-            ChannelModeStrategyStruct struct = new ChannelModeStrategyStruct();
-            struct.arg = arg;
-            struct.mode = mode;
-            struct.strategy = strategyInstance;
-            struct.operation = operation;
-
+            ChannelModeStrategyStruct struct = new ChannelModeStrategyStruct(strategyInstance, mode, operation, arg);
             strategies.add(struct);
         }
 
@@ -181,7 +196,7 @@ public class CHANMODE implements Executable {
             ChannelMode mode = ModeSet.chanModes.get(flag);
 
             if (mode == null) {
-                throw new ModeNotFoundException();
+                throw new ModeNotFoundException(flag);
             }
 
             // arg required, look ahead to see if there
@@ -198,18 +213,13 @@ public class CHANMODE implements Executable {
             Class<? extends ChannelModeStrategy> strategy = mode.getStrategy();
 
             ChannelModeStrategy strategyInstance = strategy.newInstance();
-            ChannelModeStrategyStruct struct = new ChannelModeStrategyStruct();
-            struct.arg = arg;
-            struct.mode = mode;
-            struct.strategy = strategyInstance;
-            struct.operation = operation;
+            ChannelModeStrategyStruct struct = new ChannelModeStrategyStruct(strategyInstance, mode, operation, arg);
 
             strategies.add(struct);
         }
 
         return strategies;
     }
-
 
 
     @Override

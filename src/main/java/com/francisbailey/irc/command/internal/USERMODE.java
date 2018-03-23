@@ -20,10 +20,10 @@ public class USERMODE implements Executable {
 
         // Check if nick matches user
         if (!targetNick.equals(nick) && !c.getModes().hasMode(ModeSet.OPERATOR)) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_USERSDONTMATCH, ":Can't change mode for other users"));
+            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_USERSDONTMATCH, nick + " :Can't change mode for other users"));
         }
         else if (target == null) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHNICK, ":No such user"));
+            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHNICK, nick + " :No such user"));
         }
         else if (cm.getParameterCount() < 2) {
             this.sendUsermode(c, target, instance);
@@ -34,7 +34,7 @@ public class USERMODE implements Executable {
             if (modeAction.length() != 2 || !ModeSet.userModes.containsKey(modeAction.substring(1))
             || (!modeAction.startsWith("+") && !modeAction.startsWith("-"))) {
 
-                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UMODEUNKNOWNFLAG, ":Unknown umode flag"));
+                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UMODEUNKNOWNFLAG, nick + " :Unknown umode flag"));
             } else {
                 String operation = modeAction.substring(0, 1);
                 String flag = modeAction.substring(1);

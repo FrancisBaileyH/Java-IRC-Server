@@ -7,6 +7,8 @@ import com.francisbailey.irc.mode.ModeSet;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.regex.Pattern;
+
 import static org.junit.Assert.*;
 
 /**
@@ -127,8 +129,23 @@ public class CHANMODETest extends CommandTest {
      * Assert that channel has ban mask set/removed properly
       */
     @Test
-    public void testChangeBanMask() {
+    public void testChangeBanMask() throws Exception {
+        CHANMODE exe = new CHANMODE();
+        String mask = "!abc123";
 
+        ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +b " + mask);
+        ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -b " + mask);
+
+        exe.execute(this.chanOp, cmA, this.sm);
+
+        Pattern pattern = testChannel.getMask(ModeSet.BAN_MASK).next();
+        assertEquals(mask, pattern.toString());
+
+        exe.execute(this.chanOp, cmB, this.sm);
+
+        System.out.println(testChannel.getMask(ModeSet.BAN_MASK).next());
+
+        assertNull(testChannel.getMask(ModeSet.BAN_MASK));
     }
 
 

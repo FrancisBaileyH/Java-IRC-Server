@@ -12,16 +12,20 @@ Work in progress IRC server
 - [x] Implement dynamic configuration via XML config file
 - [x] Implement OPER, MOTD, PING, QUIT commands
 
-#### Milestone 2 - Chan Ops:
+#### Milestone 2 - Chan Ops/Management:
 - [ ] Implement Channel Modes & Update User Modes
 - [ ] NAMES command
 - [ ] KICK command
 - [ ] TOPIC command
 - [ ] INVITE command
+- [ ] Ban Masks
+- [ ] Channel creation
+- [ ] Logging
 
 #### Milestone 3 - Server Protection:
 - [ ] Flood Protection and Penalties
 - [ ] Server Bans
+- [ ] Bounded Readline
 
 #### Milestone 4 - Server Queries
 - [ ] VERSION command
