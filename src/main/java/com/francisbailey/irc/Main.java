@@ -18,7 +18,7 @@ public class Main {
         XMLConfigurationReader xcr = new XMLConfigurationReader(f);
         Config config = new Config(xcr.getConfiguration());
 
-        CommandParser parser = new CommandParser();
+        CommandParser parser = new CommandParser(config.serverName);
         CommandFactory cf = new CommandFactory();
 
         Server s = new Server(parser, cf, config, 6667);

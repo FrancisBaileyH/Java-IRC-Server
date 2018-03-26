@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class ClientMessage {
 
     private String message;
-    private String commandPrefix;
+    private String commandOrigin;
     private String command;
     private ArrayList<String> parameters;
 
@@ -28,11 +28,11 @@ public class ClientMessage {
     }
 
 
-    public ClientMessage(String command, String message, ArrayList<String> parameters, String commandPrefix) {
+    public ClientMessage(String command, String message, ArrayList<String> parameters, String commandOrigin) {
         this.command = command;
         this.message = message;
         this.parameters = parameters;
-        this.commandPrefix = commandPrefix;
+        this.commandOrigin = commandOrigin;
     }
 
     public String getCommand() {
@@ -53,8 +53,8 @@ public class ClientMessage {
         return this.parameters.size();
     }
 
-    public String getCommandPrefix() {
-        return this.commandPrefix;
+    public String getCommandOrigin() {
+        return this.commandOrigin;
     }
 
 }

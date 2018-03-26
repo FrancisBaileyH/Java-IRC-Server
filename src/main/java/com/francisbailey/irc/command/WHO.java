@@ -1,6 +1,7 @@
 package com.francisbailey.irc.command;
 
 import com.francisbailey.irc.*;
+import com.francisbailey.irc.mode.Mode;
 import com.francisbailey.irc.mode.ModeSet;
 
 /**
@@ -17,7 +18,7 @@ public class WHO implements Executable {
 
             for (Connection user: chan.getUsers()) {
 
-                if (!user.getModes().hasMode(ModeSet.INVISIBLE)) {
+                if (!user.getModes().hasMode(Mode.INVISIBLE)) {
                     Client ci = user.getClientInfo();
                     String message = ci.getNick();
                     message += " " + chan.getName();

@@ -19,7 +19,7 @@ public class USERMODE implements Executable {
         Connection target = instance.findConnectionByNick(targetNick);
 
         // Check if nick matches user
-        if (!targetNick.equals(nick) && !c.getModes().hasMode(ModeSet.OPERATOR)) {
+        if (!targetNick.equals(nick) && !c.getModes().hasMode(Mode.OPERATOR)) {
             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_USERSDONTMATCH, nick + " :Can't change mode for other users"));
         }
         else if (target == null) {
@@ -31,7 +31,7 @@ public class USERMODE implements Executable {
         else {
             String modeAction = cm.getParameter(1);
 
-            if (modeAction.length() != 2 || !ModeSet.userModes.containsKey(modeAction.substring(1))
+            if (modeAction.length() != 2 || !Mode.userModes.containsKey(modeAction.substring(1))
             || (!modeAction.startsWith("+") && !modeAction.startsWith("-"))) {
 
                 c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UMODEUNKNOWNFLAG, nick + " :Unknown umode flag"));
@@ -39,7 +39,7 @@ public class USERMODE implements Executable {
                 String operation = modeAction.substring(0, 1);
                 String flag = modeAction.substring(1);
 
-                Mode mode = ModeSet.userModes.get(flag);
+                Mode mode = Mode.userModes.get(flag);
 
                 if (operation.equals("-")) {
                     this.handleRemoveMode(target, instance, mode);
@@ -72,7 +72,7 @@ public class USERMODE implements Executable {
      */
     private void handleAddMode(Connection c, ServerManager instance, Mode mode) {
 
-        if (!mode.equals(ModeSet.OPERATOR) && !mode.equals(ModeSet.LOCAL_OPERATOR) && !mode.equals(ModeSet.AWAY)) {
+        if (!mode.equals(Mode.OPERATOR) && !mode.equals(Mode.LOCAL_OPERATOR) && !mode.equals(Mode.AWAY)) {
             c.getModes().addMode(mode);
         }
     }
@@ -86,7 +86,7 @@ public class USERMODE implements Executable {
      */
     private void handleRemoveMode(Connection c, ServerManager instance, Mode mode) {
 
-        if (!mode.equals(ModeSet.RESTRICTED)) {
+        if (!mode.equals(Mode.RESTRICTED)) {
             c.getModes().removeMode(mode);
         }
     }

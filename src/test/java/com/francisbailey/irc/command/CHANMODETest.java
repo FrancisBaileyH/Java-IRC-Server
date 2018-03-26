@@ -2,8 +2,8 @@ package com.francisbailey.irc.command;
 
 import com.francisbailey.irc.*;
 import com.francisbailey.irc.command.internal.CHANMODE;
+import com.francisbailey.irc.mode.Mode;
 
-import com.francisbailey.irc.mode.ModeSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ public class CHANMODETest extends CommandTest {
         this.testChannel = this.sm.getChannelManager().getChannel(channelName);
         this.testChannel.addUser(this.chanOp);
         this.testChannel.addUser(this.chanUser);
-        this.testChannel.addModeForUser(this.chanOp, ModeSet.CHAN_OPERATOR);
+        this.testChannel.addModeForUser(this.chanOp, Mode.CHAN_OPERATOR);
     }
 
 
@@ -47,12 +47,12 @@ public class CHANMODETest extends CommandTest {
         ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -a");
 
         exe.execute(this.chanUser, cmA, this.sm);
-        assertFalse(testChannel.hasMode(ModeSet.ANONYMOUS));
+        assertFalse(testChannel.hasMode(Mode.ANONYMOUS));
 
-        testChannel.addMode(ModeSet.ANONYMOUS);
+        testChannel.addMode(Mode.ANONYMOUS);
 
         exe.execute(this.chanUser, cmB, this.sm);
-        assertTrue(testChannel.hasMode(ModeSet.ANONYMOUS));
+        assertTrue(testChannel.hasMode(Mode.ANONYMOUS));
     }
 
 
@@ -70,10 +70,10 @@ public class CHANMODETest extends CommandTest {
         ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -v " + chanUserNick);
 
         exe.execute(this.chanOp, cmA, this.sm);
-        assertTrue(testChannel.hasModeForUser(this.chanUser, ModeSet.CHAN_VOICE));
+        assertTrue(testChannel.hasModeForUser(this.chanUser, Mode.CHAN_VOICE));
 
         exe.execute(this.chanOp, cmB, this.sm);
-        assertFalse(testChannel.hasModeForUser(this.chanUser, ModeSet.CHAN_VOICE));
+        assertFalse(testChannel.hasModeForUser(this.chanUser, Mode.CHAN_VOICE));
     }
 
 
@@ -89,10 +89,10 @@ public class CHANMODETest extends CommandTest {
         ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -m");
 
         exe.execute(this.chanOp, cmA, this.sm);
-        assertTrue(testChannel.hasMode(ModeSet.MODERATED));
+        assertTrue(testChannel.hasMode(Mode.MODERATED));
 
         exe.execute(this.chanOp, cmB, this.sm);
-        assertFalse(testChannel.hasMode(ModeSet.MODERATED));
+        assertFalse(testChannel.hasMode(Mode.MODERATED));
     }
 
 
@@ -102,32 +102,32 @@ public class CHANMODETest extends CommandTest {
     @Test
     public void testChangeChannelKey() throws Exception{
 
-//        CHANMODE exe = new CHANMODE();
-//        ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +k fookey");
-//        ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -k fookey");
-//
-//        exe.execute(chanOp, cmA, this.sm);
-//        assertEquals(this.testChannel.getKey(), "fookey");
-//
-//        exe.execute(chanOp, cmB, this.sm);
-//        assertNull(this.testChannel.getKey());
+        CHANMODE exe = new CHANMODE();
+        ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +k fookey");
+        ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -k fookey");
+
+        exe.execute(chanOp, cmA, this.sm);
+        assertEquals(this.testChannel.getKey(), "fookey");
+
+        exe.execute(chanOp, cmB, this.sm);
+        assertNull(this.testChannel.getKey());
     }
 
 
     /**
-     * Assert that channel limit is set/removed properly
+     * Assert that a channel key is set properly
      */
     @Test
-    public void testChangeChannelLimit() {
+    public void testChangeChannelLimit() throws Exception {
 
+        CHANMODE exe = new CHANMODE();
+        ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +l 10");
+
+        exe.execute(chanOp, cmA, this.sm);
+        assertEquals(this.testChannel.getUserLimit(), 10);
     }
 
 
-    /**
-     * @TODO for now we'll leave unimplemented until
-     * a system for banning is in place
-     * Assert that channel has ban mask set/removed properly
-      */
     @Test
     public void testChangeBanMask() throws Exception {
         CHANMODE exe = new CHANMODE();
@@ -138,14 +138,13 @@ public class CHANMODETest extends CommandTest {
 
         exe.execute(this.chanOp, cmA, this.sm);
 
-        Pattern pattern = testChannel.getMask(ModeSet.BAN_MASK).next();
+        Pattern pattern = testChannel.getMask(Mode.BAN_MASK).next();
         assertEquals(mask, pattern.toString());
 
         exe.execute(this.chanOp, cmB, this.sm);
 
-        System.out.println(testChannel.getMask(ModeSet.BAN_MASK).next());
-
-        assertNull(testChannel.getMask(ModeSet.BAN_MASK));
+        System.out.println(testChannel.getMask(Mode.BAN_MASK).next());
+        assertNull(testChannel.getMask(Mode.BAN_MASK));
     }
 
 
@@ -153,8 +152,23 @@ public class CHANMODETest extends CommandTest {
      * Assert that channel has exception mask set/removed properly
      */
     @Test
-    public void testChangeExceptionMask() {
+    public void testChangeExceptionMask() throws Exception {
+        CHANMODE exe = new CHANMODE();
+        String mask = "!abc123";
 
+        ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +e " + mask);
+        ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -e " + mask);
+
+        exe.execute(this.chanOp, cmA, this.sm);
+
+        Pattern pattern = testChannel.getMask(Mode.BAN_MASK_EXCEPTION).next();
+        assertEquals(mask, pattern.toString());
+
+        exe.execute(this.chanOp, cmB, this.sm);
+
+        System.out.println(testChannel.getMask(Mode.BAN_MASK_EXCEPTION).next());
+        assertNull(testChannel.getMask(Mode.BAN_MASK_EXCEPTION));
+        assertNull(testChannel.getMask(Mode.BAN_MASK_EXCEPTION));
     }
 
 
@@ -162,11 +176,24 @@ public class CHANMODETest extends CommandTest {
      * Assert that channel has invitation mask set/removed properly
      */
     @Test
-    public void testChangeInvitationMask() {
+    public void testChangeInvitationMask() throws Exception {
+        CHANMODE exe = new CHANMODE();
+        String mask = "!abc123";
 
+        ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +I " + mask);
+        ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -I " + mask);
+
+        exe.execute(this.chanOp, cmA, this.sm);
+
+        Pattern pattern = testChannel.getMask(Mode.INVITATION_MASK).next();
+        assertEquals(mask, pattern.toString());
+
+        exe.execute(this.chanOp, cmB, this.sm);
+
+        System.out.println(testChannel.getMask(Mode.INVITATION_MASK).next());
+        assertNull(testChannel.getMask(Mode.INVITATION_MASK));
+        assertNull(testChannel.getMask(Mode.INVITATION_MASK));
     }
-
-
 }
 
 

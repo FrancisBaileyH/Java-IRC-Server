@@ -9,12 +9,20 @@ import com.francisbailey.irc.mode.strategy.ChannelModeStrategy;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
  * Created by fbailey on 07/05/17.
  */
 public class CHANMODE implements Executable {
+
+
+    /**
+     * RFC 2812 - there is a maximum limit of three (3) changes per
+     * command for modes that take a parameter.
+     */
+    private final int MAX_ARG_COUNT = 3;
 
 
     private class ChannelModeStrategyStruct {
@@ -46,73 +54,56 @@ public class CHANMODE implements Executable {
         String nick = c.getClientInfo().getNick();
 
         if (channel == null) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, chanName + " :No such channel, can't change mode"));
+            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, nick + " " + chanName + " :No such channel, can't change mode"));
         }
         else if (cm.getParameterCount() < 2) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, chanName + " +" + channel.getModes()));
+            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, nick + " " + chanName + " +" + channel.getModes()));
         }
         else {
-            this.handleChanMode(channel, c, cm, instance);
-        }
-    }
+            String modeAction = cm.getParameter(1);
+            String message = nick + " " + channel.getName();
 
+            if (cm.getParameterCount() >= 2) {
 
-    /**
-     * Mode arguments are complex and come in many forms. As a result, two different parse strategies must
-     * be used to separate mode flags and their arguments.
-     *
-     * @param channel
-     * @param c
-     * @param cm
-     * @param instance
-     */
-    private void handleChanMode(Channel channel, Connection c, ClientMessage cm, ServerManager instance) {
+                if (!channel.hasModeForUser(c, ModeSet.CHAN_OPERATOR) && !channel.hasModeForUser(c, ModeSet.OWNER) && !c.getModes().hasMode(Mode.OPERATOR)) {
+                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOPRIVILEGES, nick + " :Must be operator to change channel mode"));
+                }
+                else {
+                    /**
+                     * @TODO clause if we have just /MODE #channel i
+                     * we should list the values, but only if the're listable...
+                     */
 
-        String modeAction = cm.getParameter(1);
-        String nick = c.getClientInfo().getNick();
-        String message = nick + " " + channel.getName();
+                    try {
+                        String action = modeAction.substring(0, 1);
+                        ArrayList<ChannelModeStrategyStruct> strategies;
 
-        if (cm.getParameterCount() >= 2) {
-
-            if (!channel.hasModeForUser(c, ModeSet.CHAN_OPERATOR) && !channel.hasModeForUser(c, ModeSet.OWNER) && !c.getModes().hasMode(ModeSet.OPERATOR)) {
-                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOPRIVILEGES, nick + " :Must be operator to change channel mode"));
-            }
-            else {
-                /**
-                 * @TODO clause if we have just /MODE #channel i
-                 * we should list the values
-                 */
-
-                try {
-                    String action = modeAction.substring(0, 1);
-                    ArrayList<ChannelModeStrategyStruct> strategies;
-
-                    if (!action.startsWith("+") && !action.startsWith("-")) {
-                        throw new InvalidModeOperationException();
-                    }
-
-                    if (modeAction.length() > 2) {
-                        strategies = joinedModeParseStrategy(cm);
-                    } else {
-                        strategies = separatedModeParseStrategy(cm);
-                    }
-
-                    for (ChannelModeStrategyStruct struct: strategies) {
-                        if (struct.operation.equals("+")) {
-                            struct.strategy.addMode(channel, c, struct.mode, struct.arg);
-                        } else {
-                            struct.strategy.removeMode(channel, c, struct.mode, struct.arg);
+                        if (!action.startsWith("+") && !action.startsWith("-")) {
+                            throw new InvalidModeOperationException();
                         }
+
+                        if (modeAction.length() > 2) {
+                            strategies = joinedModeParseStrategy(instance, cm);
+                        } else {
+                            strategies = separatedModeParseStrategy(instance, cm);
+                        }
+
+                        for (ChannelModeStrategyStruct struct: strategies) {
+                            if (struct.operation.equals("+")) {
+                                struct.strategy.addMode(channel, c, struct.mode, struct.arg);
+                            } else {
+                                struct.strategy.removeMode(channel, c, struct.mode, struct.arg);
+                            }
+                        }
+
+                        c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, message + " +" + channel.getModes()));
+                    } catch (MissingModeArgumentException e) {
+                        c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick + " :Missing mode argument"));
+                    } catch (ModeNotFoundException e) {
+                        c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, nick + " " + e.getMessage() + " :Unknown mode"));
+                    } catch (Exception e) {
+                        c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick  + " :Unable to parse mode arguments"));
                     }
-
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, message + " +" + channel.getModes()));
-
-                } catch (MissingModeArgumentException e) {
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick + " :Missing mode argument"));
-                } catch (ModeNotFoundException e) {
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, e.getMessage() + " :Unknown mode"));
-                } catch (Exception e) {
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick  + " :Unable to parse mode arguments"));
                 }
             }
         }
@@ -127,10 +118,11 @@ public class CHANMODE implements Executable {
      * @param cm - client message to parse mode from
      * @return a list of "strategies" for setting each mode
      */
-    private ArrayList<ChannelModeStrategyStruct> joinedModeParseStrategy(ClientMessage cm)
+    private ArrayList<ChannelModeStrategyStruct> joinedModeParseStrategy(ServerManager instance, ClientMessage cm)
             throws ModeNotFoundException, MissingModeArgumentException, IllegalAccessException, InstantiationException {
         int paramCount = cm.getParameterCount();
         int modeArgIndex = 3;
+        int argCount = 0;
 
         String operation = cm.getParameter(2).substring(0, 1);
 
@@ -139,27 +131,30 @@ public class CHANMODE implements Executable {
 
         for (String flag: flags) {
 
-            ChannelMode mode = ModeSet.chanModes.get(flag);
+            Mode mode = Mode.channelModes.get(flag);
+            ChannelModeStrategy strategy = instance.getChannelModeStrategy(mode);
 
-            if (mode == null) {
+            if (mode == null || strategy == null) {
                  throw new ModeNotFoundException(flag);
+            }
+
+            if (mode.requiresArg() && argCount >= this.MAX_ARG_COUNT) {
+                break;
             }
 
             String arg = null;
 
-            if (mode.requiresArg()) {
+            if (mode.requiresArg() && argCount < this.MAX_ARG_COUNT) {
                 if (modeArgIndex < paramCount) {
                     arg = cm.getParameter(modeArgIndex);
                     modeArgIndex++;
+                    argCount++;
                 } else {
                     throw new MissingModeArgumentException();
                 }
             }
 
-            Class<? extends ChannelModeStrategy> strategy = mode.getStrategy();
-
-            ChannelModeStrategy strategyInstance = strategy.newInstance();
-            ChannelModeStrategyStruct struct = new ChannelModeStrategyStruct(strategyInstance, mode, operation, arg);
+            ChannelModeStrategyStruct struct = new ChannelModeStrategyStruct(strategy, mode, operation, arg);
             strategies.add(struct);
         }
 
@@ -176,10 +171,11 @@ public class CHANMODE implements Executable {
      * @param cm
      * @return
      */
-    private ArrayList<ChannelModeStrategyStruct> separatedModeParseStrategy(ClientMessage cm)
+    private ArrayList<ChannelModeStrategyStruct> separatedModeParseStrategy(ServerManager instance, ClientMessage cm)
             throws ModeNotFoundException, MissingModeArgumentException, InvalidModeOperationException, IllegalAccessException, InstantiationException {
 
         int paramCount = cm.getParameterCount();
+        int argCount = 0;
         ArrayList<ChannelModeStrategyStruct> strategies = new ArrayList<>();
 
         for (int modeArgIndex = 1; modeArgIndex < paramCount; modeArgIndex++) {
@@ -193,10 +189,15 @@ public class CHANMODE implements Executable {
             String operation = modeAction.substring(0, 1);
             String flag = modeAction.substring(1);
 
-            ChannelMode mode = ModeSet.chanModes.get(flag);
+            Mode mode = Mode.channelModes.get(flag);
+            ChannelModeStrategy strategy = instance.getChannelModeStrategy(mode);
 
-            if (mode == null) {
+            if (mode == null || strategy == null) {
                 throw new ModeNotFoundException(flag);
+            }
+
+            if (mode.requiresArg() && argCount >= this.MAX_ARG_COUNT) {
+                break;
             }
 
             // arg required, look ahead to see if there
@@ -206,14 +207,12 @@ public class CHANMODE implements Executable {
                     throw new MissingModeArgumentException();
                 }
 
+                argCount++;
                 modeArgIndex++;
                 arg = cm.getParameter(modeArgIndex);
             }
 
-            Class<? extends ChannelModeStrategy> strategy = mode.getStrategy();
-
-            ChannelModeStrategy strategyInstance = strategy.newInstance();
-            ChannelModeStrategyStruct struct = new ChannelModeStrategyStruct(strategyInstance, mode, operation, arg);
+            ChannelModeStrategyStruct struct = new ChannelModeStrategyStruct(strategy, mode, operation, arg);
 
             strategies.add(struct);
         }

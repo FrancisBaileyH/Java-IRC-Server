@@ -1,6 +1,10 @@
 package com.francisbailey.irc;
 
 
+import com.francisbailey.irc.mode.Mode;
+import com.francisbailey.irc.mode.strategy.ChannelModeStrategy;
+import com.francisbailey.irc.mode.strategy.UserModeStrategy;
+
 import java.util.ArrayList;
 
 /**
@@ -66,5 +70,25 @@ public class MockServerManager implements ServerManager {
     @Override
     public void broadcast(ServerMessage sm) {
 
+    }
+
+    @Override
+    public ChannelModeStrategy getChannelModeStrategy(Mode mode) {
+        return null;
+    }
+
+    @Override
+    public UserModeStrategy getUserModeStrategy(Mode mode) {
+        return null;
+    }
+
+    @Override
+    public boolean isChannelMode(String flag) {
+        return false;
+    }
+
+    @Override
+    public boolean isUserMode(String flag) {
+        return false;
     }
 }

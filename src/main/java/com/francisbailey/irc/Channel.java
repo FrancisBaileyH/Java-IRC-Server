@@ -1,5 +1,7 @@
 package com.francisbailey.irc;
 
+import com.francisbailey.irc.exception.BadMaskException;
+import com.francisbailey.irc.exception.ChannelKeyIsSetException;
 import com.francisbailey.irc.mode.Mode;
 import com.francisbailey.irc.mode.ModeSet;
 
@@ -317,13 +319,18 @@ public class Channel {
     }
 
 
-    public synchronized void setKey(String key) {
+    public synchronized void setKey(String key) throws ChannelKeyIsSetException {
+
+        if (this.key != null) {
+            throw new ChannelKeyIsSetException();
+        }
+
         this.key = key;
     }
 
 
     public synchronized String getKey() {
-        return key;
+        return this.key;
     }
 
 
@@ -332,6 +339,6 @@ public class Channel {
     }
 
     public synchronized int getUserLimit() {
-        return userLimit;
+        return this.userLimit;
     }
 }

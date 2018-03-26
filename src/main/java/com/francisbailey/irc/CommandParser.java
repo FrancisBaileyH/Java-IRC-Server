@@ -12,6 +12,13 @@ import java.util.ArrayList;
 
 public class CommandParser {
 
+    private String defaultServerName;
+
+
+    public CommandParser(String defaultServerName) {
+        this.defaultServerName =defaultServerName;
+    }
+
 
     /**
      * IRC messages come in the following format:
@@ -65,6 +72,10 @@ public class CommandParser {
         }
 
         command = command.toUpperCase();
+
+        if (prefix == null) {
+            prefix = this.defaultServerName;
+        }
 
         return new ClientMessage(command, commandMessage, parameters, prefix);
     }

@@ -2,7 +2,7 @@ package com.francisbailey.irc.command;
 
 import com.francisbailey.irc.*;
 import com.francisbailey.irc.command.internal.USERMODE;
-import com.francisbailey.irc.mode.ModeSet;
+import com.francisbailey.irc.mode.Mode;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 
 /**
@@ -23,7 +23,7 @@ public class OPER implements Executable {
             String password = operatorConfig.getString("password");
 
             if (inputUsername.equals(username) && inputPassword.equals(password)) {
-                c.getModes().addMode(ModeSet.OPERATOR);
+                c.getModes().addMode(Mode.OPERATOR);
                 c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_YOUREOP, c.getClientInfo().getNick() + " :You are now an IRC operator"));
                 USERMODE m = new USERMODE();
                 m.sendUsermode(c, c, instance);
