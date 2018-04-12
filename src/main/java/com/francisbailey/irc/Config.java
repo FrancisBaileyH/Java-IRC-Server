@@ -2,7 +2,6 @@ package com.francisbailey.irc;
 
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 

@@ -22,7 +22,7 @@ public class ChannelUserModeStrategy extends AbstractModeStrategy implements Cha
         Connection target = channel.findConnectionByNick(arg);
 
         if (target == null) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOTONCHANNEL, c.getClientInfo().getNick() + " :User not in channel"));
+            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_USERNOTINCHANNEL, c.getClientInfo().getNick() + " :User not in channel"));
         } else {
             channel.addModeForUser(target, mode);
         }
@@ -33,7 +33,7 @@ public class ChannelUserModeStrategy extends AbstractModeStrategy implements Cha
         Connection target = channel.findConnectionByNick(arg);
 
         if (target == null) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOTONCHANNEL, c.getClientInfo().getNick() + " :User not in channel"));
+            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_USERNOTINCHANNEL, c.getClientInfo().getNick() + " :User not in channel"));
         } else if (target.getModes().hasMode(Mode.OWNER) && !c.equals(target) && !c.getModes().hasMode(Mode.OPERATOR)) {
             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOPRIVILEGES, c.getClientInfo().getNick() + " :Can't change owner's modes"));
         } else {

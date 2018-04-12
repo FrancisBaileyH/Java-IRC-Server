@@ -54,7 +54,7 @@ public class Server implements ConnectionDelegate, ServerManager {
         StandardUserModeStrategy standardUserModeStrategy = new StandardUserModeStrategy(this);
 
 
-        this.channelModes.put(Mode.CHAN_VOICE,         channelUserModeStrategy);
+        this.channelModes.put(Mode.VOICE,              channelUserModeStrategy);
         this.channelModes.put(Mode.OWNER,              channelUserModeStrategy);
         this.channelModes.put(Mode.CHAN_OPERATOR,      channelUserModeStrategy);
         this.channelModes.put(Mode.INVITE,             standardChannelModeStrategy);

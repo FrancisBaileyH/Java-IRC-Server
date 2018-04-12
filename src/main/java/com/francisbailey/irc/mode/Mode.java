@@ -7,19 +7,12 @@ import java.util.HashMap;
  */
 public class Mode {
 
-    /**
-     * How do we want to do strategies?
-     * Really this will be a hardcoded value
-     * The thing is we need access to the instance don't we?
-     * Or do we? Perhaps we need to change the way messages are sent?
-     */
-
     private final String flag;
     private final String name;
     private final boolean requiresArg;
 
-    public static final Mode CHAN_OPERATOR      = new Mode("O", "CHAN_OPERATOR", true);
-    public static final Mode CHAN_VOICE         = new Mode("v", "CHAN_VOICE", true);
+    public static final Mode CHAN_OPERATOR      = new Mode("o", "CHAN_OPERATOR", true);
+    public static final Mode VOICE              = new Mode("v", "VOICE", true);
     public static final Mode OWNER              = new Mode("O", "OWNER", true);
     public static final Mode ANONYMOUS          = new Mode("a", "ANONYMOUS");
     public static final Mode INVITE             = new Mode("i", "INVITE");
@@ -35,18 +28,17 @@ public class Mode {
     public static final Mode BAN_MASK           = new Mode("b", "BAN_MASK");
     public static final Mode BAN_MASK_EXCEPTION = new Mode("e", "BAN_MASK_EXCEPTION");
     public static final Mode INVITATION_MASK    = new Mode("I", "INVITATION_MASK", true);
-    public static final Mode OPERATOR           = new Mode("O", "OPERATOR");
-    public static final Mode LOCAL_OPERATOR     = new Mode("o", "LOCAL_OPERATOR");
+    public static final Mode OPERATOR           = new Mode("o", "OPERATOR");
+    public static final Mode LOCAL_OPERATOR     = new Mode("O", "LOCAL_OPERATOR");
     public static final Mode AWAY               = new Mode("a", "AWAY");
     public static final Mode WALLOPS            = new Mode("w", "WALLOPS");
     public static final Mode RESTRICTED         = new Mode("r", "RESTRICTED");
     public static final Mode SNOTICE            = new Mode("s", "SNOTICE");
-    public static final Mode VOICE              = new Mode("o", "LOCAL_OPERATOR");
     public static final Mode INVISIBLE          = new Mode("i", "INVISIBLE");
 
     public final static HashMap<String, Mode> channelModes = new HashMap<>();
     static {
-        channelModes.put(CHAN_VOICE.getFlag(),         CHAN_VOICE);
+        channelModes.put(VOICE.getFlag(),              VOICE);
         channelModes.put(OWNER.getFlag(),              OWNER);
         channelModes.put(CHAN_OPERATOR.getFlag(),      CHAN_OPERATOR);
         channelModes.put(INVITE.getFlag(),             INVITE);
@@ -72,7 +64,6 @@ public class Mode {
         userModes.put(WALLOPS.getFlag(),        WALLOPS);
         userModes.put(RESTRICTED.getFlag(),     RESTRICTED);
         userModes.put(SNOTICE.getFlag(),        SNOTICE);
-        userModes.put(VOICE.getFlag(),          VOICE);
         userModes.put(INVISIBLE.getFlag(),      INVISIBLE);
     };
 

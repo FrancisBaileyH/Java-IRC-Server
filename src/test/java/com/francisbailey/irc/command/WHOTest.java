@@ -5,6 +5,7 @@ import com.francisbailey.irc.MockConnection;
 import com.francisbailey.irc.MockRegisteredConnectionFactory;
 import com.francisbailey.irc.*;
 import com.francisbailey.irc.exception.MissingCommandParametersException;
+import com.francisbailey.irc.mode.Mode;
 import com.francisbailey.irc.mode.ModeSet;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class WHOTest extends CommandTest {
         c.addUser(userC);
         c.addUser(userD);
 
-        userD.getModes().addMode(ModeSet.INVISIBLE);
+        userD.getModes().addMode(Mode.INVISIBLE);
 
         userA.clearOutputBuffer();
 

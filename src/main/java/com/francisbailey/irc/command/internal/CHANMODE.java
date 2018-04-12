@@ -9,7 +9,6 @@ import com.francisbailey.irc.mode.strategy.ChannelModeStrategy;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 
 /**
@@ -57,7 +56,14 @@ public class CHANMODE implements Executable {
             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, nick + " " + chanName + " :No such channel, can't change mode"));
         }
         else if (cm.getParameterCount() < 2) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, nick + " " + chanName + " +" + channel.getModes()));
+            String modes = channel.getModes().toString();
+
+            if (modes.length() < 1) {
+                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOCHANMODES, nick));
+            }
+            else {
+                c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, nick + " " + chanName + " +" + channel.getModes()));
+            }
         }
         else {
             String modeAction = cm.getParameter(1);
@@ -65,44 +71,47 @@ public class CHANMODE implements Executable {
 
             if (cm.getParameterCount() >= 2) {
 
-                if (!channel.hasModeForUser(c, ModeSet.CHAN_OPERATOR) && !channel.hasModeForUser(c, ModeSet.OWNER) && !c.getModes().hasMode(Mode.OPERATOR)) {
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOPRIVILEGES, nick + " :Must be operator to change channel mode"));
+                if (!channel.hasModeForUser(c, Mode.CHAN_OPERATOR) && !channel.hasModeForUser(c, Mode.OWNER) && !c.getModes().hasMode(Mode.OPERATOR)) {
+                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_CHANOPRIVSNEEDED, nick + " " + chanName + " :Must be operator to change channel mode"));
                 }
                 else {
-                    /**
-                     * @TODO clause if we have just /MODE #channel i
-                     * we should list the values, but only if the're listable...
-                     */
 
-                    try {
-                        String action = modeAction.substring(0, 1);
-                        ArrayList<ChannelModeStrategyStruct> strategies;
+                    String action = modeAction.substring(0, 1);
 
-                        if (!action.startsWith("+") && !action.startsWith("-")) {
-                            throw new InvalidModeOperationException();
-                        }
+                    if (Mode.channelModes.containsKey(action)) {
+                        this.listChannelMode(c, channel, Mode.channelModes.get(action));
+                    }
+                    else {
+                        try {
+                            action = modeAction.substring(0, 1);
+                            ArrayList<ChannelModeStrategyStruct> strategies;
 
-                        if (modeAction.length() > 2) {
-                            strategies = joinedModeParseStrategy(instance, cm);
-                        } else {
-                            strategies = separatedModeParseStrategy(instance, cm);
-                        }
-
-                        for (ChannelModeStrategyStruct struct: strategies) {
-                            if (struct.operation.equals("+")) {
-                                struct.strategy.addMode(channel, c, struct.mode, struct.arg);
-                            } else {
-                                struct.strategy.removeMode(channel, c, struct.mode, struct.arg);
+                            if (!action.startsWith("+") && !action.startsWith("-")) {
+                                throw new InvalidModeOperationException();
                             }
-                        }
 
-                        c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, message + " +" + channel.getModes()));
-                    } catch (MissingModeArgumentException e) {
-                        c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick + " :Missing mode argument"));
-                    } catch (ModeNotFoundException e) {
-                        c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, nick + " " + e.getMessage() + " :Unknown mode"));
-                    } catch (Exception e) {
-                        c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick  + " :Unable to parse mode arguments"));
+                            if (modeAction.length() > 2) {
+                                strategies = joinedModeParseStrategy(instance, cm);
+                            } else {
+                                strategies = separatedModeParseStrategy(instance, cm);
+                            }
+
+                            for (ChannelModeStrategyStruct struct : strategies) {
+                                if (struct.operation.equals("+")) {
+                                    struct.strategy.addMode(channel, c, struct.mode, struct.arg);
+                                } else {
+                                    struct.strategy.removeMode(channel, c, struct.mode, struct.arg);
+                                }
+                            }
+
+                            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, message + " +" + channel.getModes()));
+                        } catch (MissingModeArgumentException e) {
+                            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick + " :Missing mode argument"));
+                        } catch (ModeNotFoundException e) {
+                            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, nick + " " + e.getMessage() + " :Unknown mode"));
+                        } catch (Exception e) {
+                            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick + " :Unable to parse mode arguments"));
+                        }
                     }
                 }
             }
@@ -218,6 +227,25 @@ public class CHANMODE implements Executable {
         }
 
         return strategies;
+    }
+
+
+    /**
+     * We can list
+     * O - owner
+     * k - key
+     * l - user limit
+     * b - ban masks
+     * I - invite masks
+     * e - exception masks
+     *
+     * @TODO - to be implemented
+     * @param c
+     * @param chan
+     * @param mode
+     */
+    private void listChannelMode(Connection c, Channel chan, Mode mode) {
+
     }
 
 

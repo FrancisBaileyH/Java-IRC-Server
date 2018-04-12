@@ -3,7 +3,7 @@ package com.francisbailey.irc.command.internal;
 
 import com.francisbailey.irc.*;
 import com.francisbailey.irc.mode.Mode;
-import com.francisbailey.irc.mode.ModeSet;
+import com.francisbailey.irc.mode.strategy.UserModeStrategy;
 
 /**
  * Created by fbailey on 07/05/17.
@@ -40,12 +40,13 @@ public class USERMODE implements Executable {
                 String flag = modeAction.substring(1);
 
                 Mode mode = Mode.userModes.get(flag);
+                UserModeStrategy strategy = instance.getUserModeStrategy(mode);
 
-                if (operation.equals("-")) {
-                    this.handleRemoveMode(target, instance, mode);
+                if (operation.equals("+")) {
+                    strategy.addMode(c, target, mode);
                 }
-                else if (operation.equals("+")) {
-                    this.handleAddMode(target, instance, mode);
+                else if (operation.equals("-")) {
+                    strategy.removeMode(c, target, mode);
                 }
 
                 this.sendUsermode(c, target, instance);
@@ -63,32 +64,6 @@ public class USERMODE implements Executable {
         String nick = target.getClientInfo().getNick();
         String modes = target.getModes().toString();
         c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_UMODEIS, nick + " :+" + modes));
-    }
-
-
-    /**
-     * IRC protocol states that mode o, O, a should not be set
-     * via MODE command
-     */
-    private void handleAddMode(Connection c, ServerManager instance, Mode mode) {
-
-        if (!mode.equals(Mode.OPERATOR) && !mode.equals(Mode.LOCAL_OPERATOR) && !mode.equals(Mode.AWAY)) {
-            c.getModes().addMode(mode);
-        }
-    }
-
-
-    /**
-     * IRC protocol states that users should not be able to de-restrict
-     * themselves
-     * @param c
-     * @param mode
-     */
-    private void handleRemoveMode(Connection c, ServerManager instance, Mode mode) {
-
-        if (!mode.equals(Mode.RESTRICTED)) {
-            c.getModes().removeMode(mode);
-        }
     }
 
 

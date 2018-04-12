@@ -57,6 +57,7 @@ public class ServerMessage implements SendableMessage {
     public static final String ERR_NOCHANMODES = "477";
     public static final String ERR_BANLISTFULL = "478";
     public static final String ERR_NOPRIVILEGES = "481";
+    public static final String ERR_CHANOPRIVSNEEDED = "482";
     public static final String ERR_CANTKILLSERVER = "483";
     public static final String ERR_RESTRICTED = "484";
     public static final String ERR_UNIQOPRIVISNEEDED = "485";
@@ -173,5 +174,20 @@ public class ServerMessage implements SendableMessage {
      */
     public String compile() {
         return ":" + this.serverName + " " + this.replyCode + " " + message + " \r\n";
+    }
+
+
+    public String getServerReply() {
+        return this.replyCode;
+    }
+
+
+    public String getMessage() {
+        return this.message;
+    }
+
+
+    public String getOrigin() {
+        return this.serverName;
     }
 }

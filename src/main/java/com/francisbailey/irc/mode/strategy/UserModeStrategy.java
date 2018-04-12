@@ -9,6 +9,6 @@ import com.francisbailey.irc.mode.Mode;
  */
 public interface UserModeStrategy {
 
-    public void addMode(Connection c, Mode mode, String arg);
-    public void removeMode(Connection c, Mode mode, String arg);
+    public void addMode(Connection c, Connection target, Mode mode);
+    public void removeMode(Connection c, Connection target, Mode mode);
 }

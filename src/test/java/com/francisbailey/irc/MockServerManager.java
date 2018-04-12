@@ -15,6 +15,7 @@ public class MockServerManager implements ServerManager {
 
     private MockConfig config;
     private ChannelManager cm;
+    private MockChannelModeStrategy cms;
     private String name;
     public ArrayList<Connection> connections;
     public ArrayList<Connection> registeredConnections;
@@ -29,6 +30,7 @@ public class MockServerManager implements ServerManager {
         this.registeredConnections = new ArrayList<>();
         this.config = new MockConfig();
         this.findNickValue = null;
+        this.cms = new MockChannelModeStrategy();
     }
 
 
@@ -74,7 +76,7 @@ public class MockServerManager implements ServerManager {
 
     @Override
     public ChannelModeStrategy getChannelModeStrategy(Mode mode) {
-        return null;
+        return this.cms;
     }
 
     @Override

@@ -44,15 +44,13 @@ public class CHANMODETest extends CommandTest {
         CHANMODE exe = new CHANMODE();
 
         ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +a");
-        ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -a");
-
         exe.execute(this.chanUser, cmA, this.sm);
-        assertFalse(testChannel.hasMode(Mode.ANONYMOUS));
 
-        testChannel.addMode(Mode.ANONYMOUS);
+        MockChannelModeStrategy ms = (MockChannelModeStrategy)this.sm.getChannelModeStrategy(null);
+        ServerMessage result = this.chanUser.getLastOutput();
 
-        exe.execute(this.chanUser, cmB, this.sm);
-        assertTrue(testChannel.hasMode(Mode.ANONYMOUS));
+        assertEquals(result.getServerReply(), ServerMessage.ERR_CHANOPRIVSNEEDED);
+        assertEquals(ms.getLastModeSet(), null);
     }
 
 
@@ -61,7 +59,7 @@ public class CHANMODETest extends CommandTest {
      * given user within a channel
      */
     @Test
-    public void testSetChannelUserModes() throws Exception {
+    public void testSetModes() throws Exception {
 
         CHANMODE exe = new CHANMODE();
         String chanUserNick = this.chanUser.getClientInfo().getNick();
@@ -69,11 +67,17 @@ public class CHANMODETest extends CommandTest {
         ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +v " + chanUserNick);
         ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -v " + chanUserNick);
 
+        MockChannelModeStrategy ms = (MockChannelModeStrategy)this.sm.getChannelModeStrategy(null);
+
         exe.execute(this.chanOp, cmA, this.sm);
-        assertTrue(testChannel.hasModeForUser(this.chanUser, Mode.CHAN_VOICE));
+        assertEquals(ms.getLastModeSet(), Mode.VOICE);
+        assertEquals(ms.getLastArg(), chanUserNick);
+        assertEquals(ms.getLastOp(), MockChannelModeStrategy.OPERATION.ADD);
 
         exe.execute(this.chanOp, cmB, this.sm);
-        assertFalse(testChannel.hasModeForUser(this.chanUser, Mode.CHAN_VOICE));
+        assertEquals(ms.getLastModeSet(), Mode.VOICE);
+        assertEquals(ms.getLastArg(), chanUserNick);
+        assertEquals(ms.getLastOp(), MockChannelModeStrategy.OPERATION.REMOVE);
     }
 
 

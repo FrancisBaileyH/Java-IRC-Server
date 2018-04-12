@@ -1,6 +1,5 @@
 package com.francisbailey.irc;
 
-import com.francisbailey.irc.exception.BadMaskException;
 import com.francisbailey.irc.exception.ChannelKeyIsSetException;
 import com.francisbailey.irc.mode.Mode;
 import com.francisbailey.irc.mode.ModeSet;
@@ -22,6 +21,7 @@ public class Channel {
 
     private int userLimit;
     private String key;
+    private String owner; // ?
 
     private HashMap<Mode,ArrayList<Pattern>> masks;
     private ArrayList<Connection> users;
@@ -334,7 +334,18 @@ public class Channel {
     }
 
 
-    public synchronized void setUserLimit(int userLimit) {
+    public synchronized void clearKey() {
+        this.key = null;
+    }
+
+
+    public synchronized void setUserLimit(int userLimit)
+        throws IllegalArgumentException {
+
+        if (userLimit < 1) {
+            throw new IllegalArgumentException("User limit must be greater than 1");
+        }
+
         this.userLimit = userLimit;
     }
 

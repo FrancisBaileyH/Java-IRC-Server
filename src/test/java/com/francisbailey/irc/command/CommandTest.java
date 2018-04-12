@@ -25,7 +25,7 @@ public class CommandTest {
 
         this.cm = new ChannelManager(config.channels);
         this.sm = new MockServerManager("mockserver", this.cm);
-        this.cp = new CommandParser();
+        this.cp = new CommandParser("mockserver");
     }
 
 }

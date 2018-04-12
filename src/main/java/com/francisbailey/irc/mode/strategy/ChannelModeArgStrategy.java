@@ -20,7 +20,6 @@ public class ChannelModeArgStrategy extends AbstractModeStrategy implements Chan
     @Override
     public void addMode(Channel channel, Connection c, Mode mode, String arg) {
         if (mode.equals(Mode.CHAN_KEY)) {
-
             try {
                 channel.setKey(arg);
             } catch (ChannelKeyIsSetException e) {
@@ -43,11 +42,7 @@ public class ChannelModeArgStrategy extends AbstractModeStrategy implements Chan
     @Override
     public void removeMode(Channel channel, Connection c, Mode mode, String arg) {
         if (mode.equals(Mode.CHAN_KEY)) {
-            try {
-                channel.setKey(null);
-            } catch (Exception e) {
-                // We can ignore errors if the channel key is set already
-            }
+            channel.clearKey();
         } else {
             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_BADMASK, c.getClientInfo().getNick() + " " + channel.getName() + " :Invalid user limit"));
         }

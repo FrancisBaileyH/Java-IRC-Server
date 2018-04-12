@@ -22,12 +22,12 @@ public class MockConnection implements Connection {
     }
 
 
-    public String getLastOutput() {
+    public ServerMessage getLastOutput() {
 
         int size = this.outputBuffer.size();
 
         if (size > 0) {
-            return this.outputBuffer.get(size - 1).compile();
+            return (ServerMessage)this.outputBuffer.get(size - 1);
         }
 
         return null;
