@@ -38,7 +38,7 @@ public class JOINTest extends CommandTest {
         exe.execute(c, cm, this.sm);
 
         ServerMessage expected = new ServerMessage(this.sm.getName(), ServerMessage.ERR_NOSUCHCHANNEL, c.getClientInfo().getNick() + " #nochannel :No such channel");
-        assertEquals("Incorrect non-existent channel message", c.getLastOutput(), expected.compile());
+        assertEquals("Incorrect non-existent channel message", c.getLastOutput().compile(), expected.compile());
     }
 
 
@@ -63,8 +63,8 @@ public class JOINTest extends CommandTest {
 
         ServerMessage expected = new ServerMessage(joiner.getClientInfo().getHostmask(), ServerMessage.RPL_JOIN, "#general");
 
-        assertEquals("Channel user didn't receive join", userA.getLastOutput(), expected.compile());
-        assertEquals("Channel user didn't receive join", userB.getLastOutput(), expected.compile());
+        assertEquals("Channel user didn't receive join", userA.getLastOutput().compile(), expected.compile());
+        assertEquals("Channel user didn't receive join", userB.getLastOutput().compile(), expected.compile());
     }
 
 }

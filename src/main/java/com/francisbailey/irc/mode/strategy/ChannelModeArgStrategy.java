@@ -5,6 +5,7 @@ import com.francisbailey.irc.Connection;
 import com.francisbailey.irc.ServerManager;
 import com.francisbailey.irc.ServerMessage;
 import com.francisbailey.irc.exception.ChannelKeyIsSetException;
+import com.francisbailey.irc.exception.IRCActionException;
 import com.francisbailey.irc.mode.Mode;
 
 
@@ -18,12 +19,12 @@ public class ChannelModeArgStrategy extends AbstractModeStrategy implements Chan
     }
 
     @Override
-    public void addMode(Channel channel, Connection c, Mode mode, String arg) {
+    public void addMode(Channel channel, Connection c, Mode mode, String arg) throws IRCActionException {
         if (mode.equals(Mode.CHAN_KEY)) {
             try {
                 channel.setKey(arg);
             } catch (ChannelKeyIsSetException e) {
-                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_KEYSET, c.getClientInfo().getNick() + " " + channel.getName() + " :Error key already set"));
+                throw new IRCActionException(ServerMessage.ERR_KEYSET, c.getClientInfo().getNick() + " " + channel.getName() + " :Error key already set");
             }
         } else if (mode.equals(Mode.USER_LIMIT)) {
             try {
@@ -34,17 +35,17 @@ public class ChannelModeArgStrategy extends AbstractModeStrategy implements Chan
                 }
                 channel.setUserLimit(limit);
             } catch (Exception e) {
-                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_BADMASK, c.getClientInfo().getNick() + " " + channel.getName() + " :Invalid user limit"));
+                throw new IRCActionException(ServerMessage.ERR_BADMASK, c.getClientInfo().getNick() + " " + channel.getName() + " :Invalid user limit");
             }
         }
     }
 
     @Override
-    public void removeMode(Channel channel, Connection c, Mode mode, String arg) {
+    public void removeMode(Channel channel, Connection c, Mode mode, String arg) throws IRCActionException {
         if (mode.equals(Mode.CHAN_KEY)) {
             channel.clearKey();
         } else {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_BADMASK, c.getClientInfo().getNick() + " " + channel.getName() + " :Invalid user limit"));
+            throw new IRCActionException(ServerMessage.ERR_BADMASK, c.getClientInfo().getNick() + " " + channel.getName() + " :Invalid user limit");
         }
     }
 }

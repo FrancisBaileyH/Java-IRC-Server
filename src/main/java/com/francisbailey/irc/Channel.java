@@ -21,7 +21,6 @@ public class Channel {
 
     private int userLimit;
     private String key;
-    private String owner; // ?
 
     private HashMap<Mode,ArrayList<Pattern>> masks;
     private ArrayList<Connection> users;

@@ -4,9 +4,7 @@ import com.francisbailey.irc.mode.Mode;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by fbailey on 10/05/17.
@@ -25,52 +23,7 @@ public class ChannelTest {
     }
 
 
-    /**
-     * Assert that users are notified when a new user joins
-     * and that the new user is properly added to the channel.
-     */
-    @Test
-    public void testAddChannelUser() {
 
-//        MockConnection userA = MockRegisteredConnectionFactory.build();
-//        MockConnection userB = MockRegisteredConnectionFactory.build();
-//
-//        this.chan.join(userA);
-//        this.chan.join(userB);
-//
-//        ServerMessage expected = new ServerMessage(userB.getClientInfo().getHostmask(), ServerMessage.RPL_JOIN, this.name);
-//
-//        assertTrue(this.chan.hasUser(userA));
-//        assertTrue(this.chan.hasUser(userB));
-//
-//        assertEquals(expected.compile(), userA.getLastOutput());
-    }
-
-
-    /**
-     * Assert that users are properly notified when someone leaves the
-     * channel and that the parting user is properly removed from
-     * the channel.
-     */
-    @Test
-    public void testRemoveChannelUser() {
-
-//        MockConnection userA = MockRegisteredConnectionFactory.build();
-//        MockConnection userB = MockRegisteredConnectionFactory.build();
-//
-//        this.chan.join(userA);
-//        this.chan.join(userB);
-//
-//        this.chan.part(userA, "leaving");
-//
-//        ServerMessage expected = new ServerMessage(userA.getClientInfo().getHostmask(), ServerMessage.RPL_PART, this.chan.getName() + " :leaving");
-//        assertEquals(userB.getLastOutput(), expected.compile());
-//
-//        this.chan.part(userB, "leaving");
-//
-//        assertFalse(this.chan.hasUser(userA));
-//        assertFalse(this.chan.hasUser(userB));
-    }
 
     @Test
     public void testChangeModeForUser() {
@@ -81,7 +34,7 @@ public class ChannelTest {
 
         this.chan.addModeForUser(c, mode);
         assertTrue(this.chan.hasModeForUser(c, mode));
-        assertEquals(this.chan.getModesForUser(c).toString(), mode);
+        assertEquals(this.chan.getModesForUser(c).toString(), mode.getFlag());
 
         this.chan.removeModeForUser(c, mode);
         assertFalse(this.chan.hasModeForUser(c, mode));
@@ -92,21 +45,46 @@ public class ChannelTest {
 
     @Test
     public void testChangeChannelMode() {
+        this.chan.addMode(Mode.OP_TOPIC_ONLY);
+        assertTrue(this.chan.hasMode(Mode.OP_TOPIC_ONLY));
 
+        this.chan.removeMode(Mode.OP_TOPIC_ONLY);
+        assertFalse(this.chan.hasMode(Mode.OP_TOPIC_ONLY));
     }
 
 
     @Test
-    public void testChangeChannelTopic() {
+    public void testChangeChannelMask() {
+        String mask = "!@foobar";
 
+        this.chan.addMask(Mode.BAN_MASK, mask);
+        assertTrue(this.chan.getMask(Mode.BAN_MASK).next().toString().equals(mask));
 
+        this.chan.removeMask(Mode.BAN_MASK, mask);
+        assertNull(this.chan.getMask(Mode.BAN_MASK).next());
     }
 
 
     @Test
-    public void testInviteOnlyChannel() {
+    public void testFindConnectionByNick() {
 
+        Connection userA = MockRegisteredConnectionFactory.build();
+        Connection userB = MockRegisteredConnectionFactory.build();
+        Connection userC = MockRegisteredConnectionFactory.build();
+
+        this.chan.addUser(userA);
+        this.chan.addUser(userB);
+        this.chan.addUser(userC);
+
+        String searchNick = userB.getClientInfo().getNick();
+
+        Connection existentUser = this.chan.findConnectionByNick(searchNick);
+        assertTrue(existentUser.getClientInfo().getNick().equals(searchNick));
+
+        this.chan.removeUser(userB);
+
+        Connection nonexistentUser = this.chan.findConnectionByNick(searchNick);
+        assertNull(nonexistentUser);
     }
-
 
 }

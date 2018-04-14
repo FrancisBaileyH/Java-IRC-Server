@@ -1,6 +1,7 @@
 package com.francisbailey.irc.command.internal;
 
 import com.francisbailey.irc.*;
+import com.francisbailey.irc.exception.IRCActionException;
 import com.francisbailey.irc.exception.InvalidModeOperationException;
 import com.francisbailey.irc.exception.MissingModeArgumentException;
 import com.francisbailey.irc.exception.ModeNotFoundException;
@@ -109,6 +110,8 @@ public class CHANMODE implements Executable {
                             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick + " :Missing mode argument"));
                         } catch (ModeNotFoundException e) {
                             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, nick + " " + e.getMessage() + " :Unknown mode"));
+                        } catch (IRCActionException e) {
+                            c.send(new ServerMessage(instance.getName(), e.getReplyCode(), e.getMessage()));
                         } catch (Exception e) {
                             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick + " :Unable to parse mode arguments"));
                         }
