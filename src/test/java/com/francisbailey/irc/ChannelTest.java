@@ -61,7 +61,7 @@ public class ChannelTest {
         assertTrue(this.chan.getMask(Mode.BAN_MASK).next().toString().equals(mask));
 
         this.chan.removeMask(Mode.BAN_MASK, mask);
-        assertNull(this.chan.getMask(Mode.BAN_MASK).next());
+        assertNull(this.chan.getMask(Mode.BAN_MASK));
     }
 
 

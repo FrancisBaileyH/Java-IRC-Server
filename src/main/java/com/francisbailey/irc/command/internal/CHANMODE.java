@@ -105,7 +105,9 @@ public class CHANMODE implements Executable {
                                 }
                             }
 
-                            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, message + " +" + channel.getModes()));
+                            if (channel.getModes().length() > 0) {
+                                c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, message + " +" + channel.getModes()));
+                            }
                         } catch (MissingModeArgumentException e) {
                             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick + " :Missing mode argument"));
                         } catch (ModeNotFoundException e) {

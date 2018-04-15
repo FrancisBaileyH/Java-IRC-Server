@@ -6,6 +6,7 @@ import com.francisbailey.irc.mode.ModeSet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.regex.Pattern;
 
@@ -67,6 +68,14 @@ public class Channel {
 
 
     /**
+     * Clear all modes
+     */
+    public synchronized void clearModes() {
+        this.modes.clearModes();
+    }
+
+
+    /**
      * Verify that the channel has a given mode
      * @param mode
      * @return
@@ -93,6 +102,7 @@ public class Channel {
      */
     public synchronized void removeUser(Connection c) {
         if (this.users.contains(c)) {
+            this.channelUserModes.remove(c);
             this.users.remove(c);
         }
     }
@@ -212,6 +222,31 @@ public class Channel {
 
 
     /**
+     * Pattern is a final class, so it's equals() method cannot
+     * be overridden. As a result we can not use the default
+     * list.contains or list.remove on a Pattern object.
+     * @param mode
+     * @param searchMask
+     * @return
+     */
+    public boolean hasMask(Mode mode, String searchMask) {
+
+        ArrayList<Pattern> masks = this.masks.get(mode);
+
+        if (mode == null) {
+            return false;
+        }
+
+        for (Pattern mask: masks) {
+            if (mask.pattern().equals(searchMask)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Get the channel topic
      * @return
      */
@@ -293,14 +328,21 @@ public class Channel {
     /**
      * Remove a mask if one exists for the given mode
      * @param mode
-     * @param mask
+     * @param searchMask
      */
-    public synchronized void removeMask(Mode mode, String mask) {
+    public synchronized void removeMask(Mode mode, String searchMask) {
         ArrayList<Pattern> masks = this.masks.get(mode);
-        Pattern maskPattern = Pattern.compile(mask);
 
-        if (masks != null && masks.contains(maskPattern)) {
-            masks.remove(maskPattern);
+        if (mode == null) {
+            return;
+        }
+
+        for (int i = 0; i < masks.size(); i++) {
+            Pattern mask = masks.get(i);
+            if (mask.pattern().equals(searchMask)) {
+                masks.remove(i);
+                return;
+            }
         }
     }
 

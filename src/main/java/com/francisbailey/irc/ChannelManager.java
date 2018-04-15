@@ -42,6 +42,11 @@ public class ChannelManager {
     }
 
 
+    public void addChannel(Channel channel) {
+        this.channels.put(channel.getName(), channel);
+    }
+
+
     /**
      * Channels names are strings (beginning with a '&', '#', '+' or '!'
      * character) of length up to fifty (50) characters.  Channel names are
