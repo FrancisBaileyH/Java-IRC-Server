@@ -1,9 +1,15 @@
 package com.francisbailey.irc;
 
+import com.francisbailey.irc.exception.InvalidCommandException;
+import com.francisbailey.irc.exception.MissingCommandParametersException;
+import com.francisbailey.irc.mode.Mode;
+import com.francisbailey.irc.mode.strategy.*;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 /**
@@ -20,7 +26,8 @@ public class Server implements ConnectionDelegate, ServerManager {
     private CommandFactory cf;
     private ChannelManager cm;
     private String name;
-    private UserModes userModes;
+    private HashMap<Mode, ChannelModeStrategy> channelModes;
+    private HashMap<Mode, UserModeStrategy> userModes;
 
 
     /**
@@ -31,12 +38,47 @@ public class Server implements ConnectionDelegate, ServerManager {
 
         this.connections = new ArrayList<>();
         this.registeredConnections = new ArrayList<>();
-        this.userModes = new UserModes();
         this.parser = parser;
         this.cf = cf;
         this.config = config;
         this.cm = new ChannelManager(config.channels);
         this.name = config.serverName;
+
+        this.channelModes = new HashMap<>();
+        this.userModes = new HashMap<>();
+
+        ChannelModeArgStrategy channelModeArgStrategy = new ChannelModeArgStrategy(this);
+        StandardChannelModeStrategy standardChannelModeStrategy = new StandardChannelModeStrategy(this);
+        ChannelUserModeStrategy channelUserModeStrategy = new ChannelUserModeStrategy(this);
+        ChannelModeMaskStrategy channelModeMaskStrategy = new ChannelModeMaskStrategy(this);
+        StandardUserModeStrategy standardUserModeStrategy = new StandardUserModeStrategy(this);
+
+
+        this.channelModes.put(Mode.VOICE,              channelUserModeStrategy);
+        this.channelModes.put(Mode.OWNER,              channelUserModeStrategy);
+        this.channelModes.put(Mode.CHAN_OPERATOR,      channelUserModeStrategy);
+        this.channelModes.put(Mode.INVITE,             standardChannelModeStrategy);
+        this.channelModes.put(Mode.MODERATED,          standardChannelModeStrategy);
+        this.channelModes.put(Mode.CHAN_SRC_ONLY,      standardChannelModeStrategy);
+        this.channelModes.put(Mode.QUIET,              standardChannelModeStrategy);
+        this.channelModes.put(Mode.PRIVATE,            standardChannelModeStrategy);
+        this.channelModes.put(Mode.SECRET,             standardChannelModeStrategy);
+        this.channelModes.put(Mode.REOP,               standardChannelModeStrategy);
+        this.channelModes.put(Mode.OP_TOPIC_ONLY,      standardChannelModeStrategy);
+        this.channelModes.put(Mode.CHAN_KEY,           channelModeArgStrategy);
+        this.channelModes.put(Mode.USER_LIMIT,         channelModeArgStrategy);
+        this.channelModes.put(Mode.BAN_MASK,           channelModeMaskStrategy);
+        this.channelModes.put(Mode.BAN_MASK_EXCEPTION, channelModeMaskStrategy);
+        this.channelModes.put(Mode.INVITATION_MASK,    channelModeMaskStrategy);
+
+        this.userModes.put(Mode.OPERATOR,              standardUserModeStrategy);
+        this.userModes.put(Mode.LOCAL_OPERATOR,        standardUserModeStrategy);
+        this.userModes.put(Mode.AWAY,                  standardUserModeStrategy);
+        this.userModes.put(Mode.WALLOPS,               standardUserModeStrategy);
+        this.userModes.put(Mode.RESTRICTED,            standardUserModeStrategy);
+        this.userModes.put(Mode.SNOTICE,               standardUserModeStrategy);
+        this.userModes.put(Mode.VOICE,                 standardUserModeStrategy);
+        this.userModes.put(Mode.INVISIBLE,             standardUserModeStrategy);
 
         try {
             this.socket = new ServerSocket(port);
@@ -45,6 +87,32 @@ public class Server implements ConnectionDelegate, ServerManager {
             e.printStackTrace();
         }
     }
+
+
+    /**
+     * Very much a yolo move, let's just do this and move on...
+     * @param mode
+     * @return
+     */
+    public ChannelModeStrategy getChannelModeStrategy(Mode mode) {
+        return this.channelModes.get(mode);
+    }
+
+
+    public UserModeStrategy getUserModeStrategy(Mode mode) {
+        return this.userModes.get(mode);
+    }
+
+
+    public boolean isChannelMode(String flag) {
+        return this.channelModes.containsKey(flag);
+    }
+
+
+    public boolean isUserMode(String flag) {
+        return this.userModes.containsKey(flag);
+    }
+
 
 
     /**
@@ -58,7 +126,7 @@ public class Server implements ConnectionDelegate, ServerManager {
             while (true) {
 
                 Socket s = this.socket.accept();
-                TCPConnection c = new TCPConnection(s, this);
+                IrcConnection c = new IrcConnection(s, this);
 
                 this.connections.add(c);
                 Thread t = new Thread(c);
@@ -72,7 +140,7 @@ public class Server implements ConnectionDelegate, ServerManager {
 
 
     /**
-     * Parse and execute incoming String commands from connections.
+     * Parse and execute incoming String command from connections.
      * @param c
      * @param command
      */
@@ -187,22 +255,5 @@ public class Server implements ConnectionDelegate, ServerManager {
         for (Connection c: this.registeredConnections) {
             c.send(sm);
         }
-    }
-
-    @Override
-    public UserModes getModeTypes() {
-        return this.userModes;
-    }
-
-
-    @Override
-    public String getContextName() {
-        return config.networkName;
-    }
-
-
-    @Override
-    public String getContextType() {
-        return "server";
     }
 }

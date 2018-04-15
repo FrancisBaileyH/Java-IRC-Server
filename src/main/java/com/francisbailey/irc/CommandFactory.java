@@ -1,6 +1,8 @@
 package com.francisbailey.irc;
 
 
+import com.francisbailey.irc.exception.InvalidCommandException;
+
 /**
  * Created by fbailey on 16/11/16.
  */
@@ -12,7 +14,7 @@ public class CommandFactory {
         Executable exe;
 
         try {
-            Class<?> c = Class.forName("com.francisbailey.irc.commands." + msg.getCommand());
+            Class<?> c = Class.forName("com.francisbailey.irc.command." + msg.getCommand());
             exe = (Executable) c.getConstructor().newInstance();
         }
         catch (Exception e) {

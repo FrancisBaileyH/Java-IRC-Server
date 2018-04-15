@@ -1,9 +1,13 @@
 package com.francisbailey.irc;
 
+import com.francisbailey.irc.mode.Mode;
+import com.francisbailey.irc.mode.strategy.ChannelModeStrategy;
+import com.francisbailey.irc.mode.strategy.UserModeStrategy;
+
 /**
  * Created by fbailey on 16/11/16.
  */
-public interface ServerManager extends ModeContext {
+public interface ServerManager {
 
     public String getName();
     public void closeConnection(Connection c);
@@ -12,5 +16,8 @@ public interface ServerManager extends ModeContext {
     public Config getConfig();
     public ChannelManager getChannelManager();
     public void broadcast(ServerMessage sm);
-    public UserModes getModeTypes();
+    public ChannelModeStrategy getChannelModeStrategy(Mode mode);
+    public UserModeStrategy getUserModeStrategy(Mode mode);
+    public boolean isChannelMode(String flag);
+    public boolean isUserMode(String flag);
 }

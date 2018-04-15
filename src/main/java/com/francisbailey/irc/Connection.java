@@ -1,5 +1,7 @@
 package com.francisbailey.irc;
 
+import com.francisbailey.irc.mode.ModeSet;
+
 /**
  * Created by fbailey on 05/05/17.
  */
@@ -11,5 +13,6 @@ public interface Connection {
     public Client getClientInfo();
     public void setClientInfo(Client c);
     public String getHostNameInfo();
-    public Modes getModes();
+    public ModeSet getModes();
+    public void setModes(ModeSet ms);
 }
