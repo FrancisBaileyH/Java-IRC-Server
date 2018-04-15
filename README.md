@@ -13,7 +13,7 @@ Work in progress IRC server
 - [x] Implement OPER, MOTD, PING, QUIT commands
 
 #### Milestone 2 - Chan Ops/Management:
-- [ ] Implement Channel Modes & Update User Modes
+- [x] Implement Channel Modes & Update User Modes
 - [ ] NAMES command
 - [ ] KICK command
 - [ ] TOPIC command
