@@ -90,7 +90,7 @@ public class Server implements ConnectionDelegate, ServerManager {
 
 
     /**
-     * Very much a yolo move, let's just do this and move on...
+     * Bad implementation... let's just do this and move on...
      * @param mode
      * @return
      */
