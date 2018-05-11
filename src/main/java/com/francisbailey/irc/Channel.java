@@ -6,7 +6,6 @@ import com.francisbailey.irc.mode.ModeSet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.regex.Pattern;
 

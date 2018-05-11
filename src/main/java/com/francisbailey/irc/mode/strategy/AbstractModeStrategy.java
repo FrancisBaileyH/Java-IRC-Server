@@ -8,11 +8,10 @@ import com.francisbailey.irc.ServerManager;
 public class AbstractModeStrategy {
 
 
-    protected ServerManager instance;
+  protected ServerManager instance;
 
 
-    public AbstractModeStrategy(ServerManager instance) {
-        this.instance = instance;
-    }
-
+  public AbstractModeStrategy(ServerManager instance) {
+    this.instance = instance;
+  }
 }
