@@ -37,7 +37,7 @@ public class IrcConnection implements Runnable, Connection {
 
     /**
      * @TODO - this is susceptible to a readLine DOS attack. We need a bounded buffered reader
-     *
+     * @TODO - add IOException handling (close out connection)
      * Initialize input and output streams and begin listening for
      * incoming messages.
      */

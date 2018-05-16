@@ -41,8 +41,8 @@ public class Server implements ConnectionDelegate, ServerManager {
         this.parser = parser;
         this.cf = cf;
         this.config = config;
-        this.cm = new ChannelManager(config.channels);
-        this.name = config.serverName;
+        this.cm = new ChannelManager(config.getChannels());
+        this.name = config.getServerName();
 
         this.channelModes = new HashMap<>();
         this.userModes = new HashMap<>();

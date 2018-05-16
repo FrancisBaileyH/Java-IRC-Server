@@ -3,7 +3,8 @@ package com.francisbailey.irc.command;
 import com.francisbailey.irc.*;
 import com.francisbailey.irc.command.internal.USERMODE;
 import com.francisbailey.irc.mode.Mode;
-import org.apache.commons.configuration2.HierarchicalConfiguration;
+
+import java.util.HashMap;
 
 /**
  * Created by fbailey on 16/12/16.
@@ -17,19 +18,18 @@ public class OPER implements Executable {
         String inputUsername = cm.getParameter(0);
         String inputPassword = cm.getParameter(1);
 
-        for (HierarchicalConfiguration operatorConfig: instance.getConfig().operators) {
 
-            String username = operatorConfig.getString("username");
-            String password = operatorConfig.getString("password");
+        HashMap<String, String> operators = instance.getConfig().getOperators();
 
-            if (inputUsername.equals(username) && inputPassword.equals(password)) {
-                c.getModes().addMode(Mode.OPERATOR);
-                c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_YOUREOP, c.getClientInfo().getNick() + " :You are now an IRC operator"));
-                USERMODE m = new USERMODE();
-                m.sendUsermode(c, c, instance);
+        String password = operators.get(inputUsername);
 
-                return;
-            }
+        if (password != null && password.equals(inputPassword)) {
+            c.getModes().addMode(Mode.OPERATOR);
+            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_YOUREOP, c.getClientInfo().getNick() + " :You are now an IRC operator"));
+            USERMODE m = new USERMODE();
+            m.sendUsermode(c, c, instance);
+
+            return;
         }
 
         c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_PASSWDMISMATCH, c.getClientInfo().getNick() + " :Invalid username or password"));

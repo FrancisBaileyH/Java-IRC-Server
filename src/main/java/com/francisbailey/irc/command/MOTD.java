@@ -10,7 +10,7 @@ public class MOTD implements Executable {
 
     public void execute(Connection c, ClientMessage cm, ServerManager instance) {
 
-        String motd = instance.getConfig().motd;
+        String motd = instance.getConfig().getMotd();
 
         if (motd == null) {
             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOMOTD, c.getClientInfo().getNick()));

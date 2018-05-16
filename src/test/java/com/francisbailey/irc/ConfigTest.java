@@ -1,11 +1,10 @@
 package com.francisbailey.irc;
 
-import com.francisbailey.irc.Config;
-import com.francisbailey.irc.XMLConfigurationReader;
 import org.apache.commons.configuration2.HierarchicalConfiguration;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -23,7 +22,7 @@ public class ConfigTest {
 
         File f = new File("src/test/java/test-config.xml");
         XMLConfigurationReader xcr = new XMLConfigurationReader(f);
-        this.config = new Config(xcr.getConfiguration());
+        this.config = new XMLConfig(xcr.getConfiguration());
     }
 
     @org.junit.After
@@ -38,10 +37,10 @@ public class ConfigTest {
      */
     public void testConfigValuesLoaded() {
 
-        assertEquals("irc.test.com", config.serverName);
-        assertEquals("Welcome to irc.test.com", config.welcomeMessage);
+        assertEquals("irc.test.com", config.getServerName());
+        assertEquals("Welcome to irc.test.com", config.getWelcomeMessage());
 
-        List<HierarchicalConfiguration> channels = config.channels;
+        List<HierarchicalConfiguration> channels = config.getChannels();
 
         for (HierarchicalConfiguration chan: channels) {
 
@@ -51,14 +50,10 @@ public class ConfigTest {
         }
 
 
-        List<HierarchicalConfiguration> operators = config.operators;
+        HashMap<String, String> operators = config.getOperators();
 
-        for (HierarchicalConfiguration operator: operators) {
-            assertEquals("francis", operator.getString("username"));
-            assertEquals("Password123", operator.getString("password"));
-            break;
-        }
-
+        String password = operators.get("francis");
+        assertEquals(password, "Password123");
     }
 
 }

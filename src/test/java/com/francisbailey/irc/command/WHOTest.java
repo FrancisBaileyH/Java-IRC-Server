@@ -6,9 +6,10 @@ import com.francisbailey.irc.MockRegisteredConnectionFactory;
 import com.francisbailey.irc.*;
 import com.francisbailey.irc.exception.MissingCommandParametersException;
 import com.francisbailey.irc.mode.Mode;
-import com.francisbailey.irc.mode.ModeSet;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,7 +22,7 @@ public class WHOTest extends CommandTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        this.sm.getChannelManager().addChannel("#foo", "Test Topic");
+        this.serverManager.getChannelManager().addChannel("#foo", "Test Topic");
     }
 
 
@@ -38,7 +39,7 @@ public class WHOTest extends CommandTest {
         MockConnection userC = MockRegisteredConnectionFactory.build();
         MockConnection userD = MockRegisteredConnectionFactory.build();
 
-        Channel c = this.sm.getChannelManager().getChannel("#foo");
+        Channel c = this.serverManager.getChannelManager().getChannel("#foo");
         c.addUser(userA);
         c.addUser(userB);
         c.addUser(userC);
@@ -48,17 +49,26 @@ public class WHOTest extends CommandTest {
 
         userA.clearOutputBuffer();
 
-        ClientMessage cm = this.cp.parse("WHO #foo");
+        ClientMessage cm = this.commandParser.parse("WHO #foo");
         WHO exe = new WHO();
-        exe.execute(userA, cm, this.sm);
+        exe.execute(userA, cm, this.serverManager);
 
         ServerMessage sm1 = buildExpectedWhoListMessage(userA, c);
         ServerMessage sm2 = buildExpectedWhoListMessage(userB, c);
         ServerMessage sm3 = buildExpectedWhoListMessage(userC, c);
-        ServerMessage sm4 = new ServerMessage(this.sm.getName(), ServerMessage.RPL_ENDOFWHO);
+        ServerMessage sm4 = new ServerMessage(this.serverManager.getName(), ServerMessage.RPL_ENDOFWHO);
 
         String expected = sm1.compile() + sm2.compile() + sm3.compile() + sm4.compile();
-        assertEquals(userA.getAllOutput(), expected);
+
+        ArrayList<ServerMessage> messages = userA.getAllOutput();
+
+        String output = "";
+
+        for (ServerMessage serverMessage: messages) {
+            output += serverMessage.compile();
+        }
+
+        assertEquals(output, expected);
     }
 
 
@@ -69,10 +79,10 @@ public class WHOTest extends CommandTest {
         message += " " + ch.getName();
         message += " " + ci.getUsername();
         message += " " + ci.getHostname();
-        message += " " + this.sm.getName();
+        message += " " + this.serverManager.getName();
         message += " " + ci.getNick();
         message += " :0 " + ci.getRealname();
-        return new ServerMessage(this.sm.getName(), ServerMessage.RPL_WHOREPLY, message);
+        return new ServerMessage(this.serverManager.getName(), ServerMessage.RPL_WHOREPLY, message);
     }
 
 }

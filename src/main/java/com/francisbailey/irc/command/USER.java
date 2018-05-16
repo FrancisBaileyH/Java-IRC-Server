@@ -45,7 +45,7 @@ public class USER implements Executable {
     public void sendRegistrationAcknowledgement(Connection c, ServerManager instance) {
 
         String nick = c.getClientInfo().getNick();
-        String welcomeMessage = instance.getConfig().welcomeMessage + " " + c.getClientInfo().getHostmask();
+        String welcomeMessage = instance.getConfig().getWelcomeMessage() + " " + c.getClientInfo().getHostmask();
         String message = nick + " :" + welcomeMessage;
         String serverName = instance.getName();
 

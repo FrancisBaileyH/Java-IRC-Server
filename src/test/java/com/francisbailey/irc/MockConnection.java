@@ -33,14 +33,15 @@ public class MockConnection implements Connection {
         return null;
     }
 
-    public String getAllOutput() {
-        String output = "";
+    public ArrayList<ServerMessage> getAllOutput() {
 
-        for (SendableMessage m: this.outputBuffer) {
-            output += m.compile();
+        ArrayList<ServerMessage> messages = new ArrayList<>();
+
+        for (SendableMessage message: this.outputBuffer) {
+            messages.add((ServerMessage)message);
         }
 
-        return output;
+        return messages;
     }
 
 

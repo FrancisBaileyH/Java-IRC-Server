@@ -53,20 +53,21 @@ public class JOIN implements Executable {
     /**
      * After a user successfully joins a channel they must be sent a list of
      * all users currently in the channel
-     * @param c
-     * @param chan
-     * @param serverName
+     *
+     * @param conn - The client that joined the channel
+     * @param chan - The channel the client joined
+     * @param serverName - The servername
      */
-    private void sendChannelUsers(Connection c, Channel chan, String serverName) {
+    private void sendChannelUsers(Connection conn, Channel chan, String serverName) {
 
         ArrayList<String> nicks = chan.getNicks();
         String chanName = chan.getName();
-        String nick = c.getClientInfo().getNick();
+        String nick = conn.getClientInfo().getNick();
 
         for (String chanNick: nicks) {
-            c.send(new ServerMessage(serverName, ServerMessage.RPL_NAMREPLY, nick + " = " + chanName + " :" + chanNick));
+            conn.send(new ServerMessage(serverName, ServerMessage.RPL_NAMREPLY, nick + " = " + chanName + " :" + chanNick));
         }
 
-        c.send(new ServerMessage(serverName, ServerMessage.RPL_ENDOFNAMES, nick + " " + chanName + " :End of NAMES list"));
+        conn.send(new ServerMessage(serverName, ServerMessage.RPL_ENDOFNAMES, nick + " " + chanName + " :End of NAMES list"));
     }
 }

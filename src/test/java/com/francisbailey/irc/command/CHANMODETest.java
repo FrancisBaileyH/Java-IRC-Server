@@ -26,8 +26,8 @@ public class CHANMODETest extends CommandTest {
     public void setUp() throws Exception {
 
         super.setUp();
-        this.sm.getChannelManager().addChannel(channelName, "");
-        this.testChannel = this.sm.getChannelManager().getChannel(channelName);
+        this.serverManager.getChannelManager().addChannel(channelName, "");
+        this.testChannel = this.serverManager.getChannelManager().getChannel(channelName);
         this.testChannel.addUser(this.chanOp);
         this.testChannel.addUser(this.chanUser);
         this.testChannel.addModeForUser(this.chanOp, Mode.CHAN_OPERATOR);
@@ -38,10 +38,10 @@ public class CHANMODETest extends CommandTest {
 
         CHANMODE exe = new CHANMODE();
 
-        ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +a");
-        exe.execute(this.chanUser, cmA, this.sm);
+        ClientMessage cmA = this.commandParser.parse("MODE " + this.channelName + " +a");
+        exe.execute(this.chanUser, cmA, this.serverManager);
 
-        MockChannelModeStrategy ms = (MockChannelModeStrategy)this.sm.getChannelModeStrategy(null);
+        MockChannelModeStrategy ms = (MockChannelModeStrategy)this.serverManager.getChannelModeStrategy(null);
         ServerMessage result = this.chanUser.getLastOutput();
 
         assertEquals(result.getServerReply(), ServerMessage.ERR_CHANOPRIVSNEEDED);
@@ -54,17 +54,17 @@ public class CHANMODETest extends CommandTest {
         CHANMODE exe = new CHANMODE();
         String chanUserNick = this.chanUser.getClientInfo().getNick();
 
-        ClientMessage cmA = this.cp.parse("MODE " + this.channelName + " +v " + chanUserNick);
-        ClientMessage cmB = this.cp.parse("MODE " + this.channelName + " -v " + chanUserNick);
+        ClientMessage cmA = this.commandParser.parse("MODE " + this.channelName + " +v " + chanUserNick);
+        ClientMessage cmB = this.commandParser.parse("MODE " + this.channelName + " -v " + chanUserNick);
 
-        MockChannelModeStrategy ms = (MockChannelModeStrategy)this.sm.getChannelModeStrategy(null);
+        MockChannelModeStrategy ms = (MockChannelModeStrategy)this.serverManager.getChannelModeStrategy(null);
 
-        exe.execute(this.chanOp, cmA, this.sm);
+        exe.execute(this.chanOp, cmA, this.serverManager);
         assertEquals(ms.getLastModeSet(), Mode.VOICE);
         assertEquals(ms.getLastArg(), chanUserNick);
         assertEquals(ms.getLastOp(), MockChannelModeStrategy.OPERATION.ADD);
 
-        exe.execute(this.chanOp, cmB, this.sm);
+        exe.execute(this.chanOp, cmB, this.serverManager);
         assertEquals(ms.getLastModeSet(), Mode.VOICE);
         assertEquals(ms.getLastArg(), chanUserNick);
         assertEquals(ms.getLastOp(), MockChannelModeStrategy.OPERATION.REMOVE);
@@ -76,13 +76,13 @@ public class CHANMODETest extends CommandTest {
         MockConnection c = MockRegisteredConnectionFactory.build();
 
         Channel chan = new Channel("#foobar", "test");
-        this.sm.getChannelManager().addChannel(chan);
+        this.serverManager.getChannelManager().addChannel(chan);
 
         chan.addUser(c);
         chan.addModeForUser(c, Mode.OWNER);
 
-        ClientMessage cm = this.cp.parse("MODE " + chan.getName());
-        exe.execute(c, cm, this.sm);
+        ClientMessage cm = this.commandParser.parse("MODE " + chan.getName());
+        exe.execute(c, cm, this.serverManager);
 
         assertEquals(c.getLastOutput().getServerReply(), ServerMessage.ERR_NOCHANMODES);
     }
@@ -92,8 +92,8 @@ public class CHANMODETest extends CommandTest {
         CHANMODE exe = new CHANMODE();
         MockConnection c = MockRegisteredConnectionFactory.build();
 
-        ClientMessage cm = this.cp.parse("MODE " + "#nosuchchannel");
-        exe.execute(c, cm, this.sm);
+        ClientMessage cm = this.commandParser.parse("MODE " + "#nosuchchannel");
+        exe.execute(c, cm, this.serverManager);
 
         assertEquals(c.getLastOutput().getServerReply(), ServerMessage.ERR_NOSUCHCHANNEL);
     }
@@ -105,10 +105,10 @@ public class CHANMODETest extends CommandTest {
         this.testChannel.addMode(Mode.MODERATED);
         this.testChannel.addMode(Mode.OP_TOPIC_ONLY);
 
-        ClientMessage cm = this.cp.parse("MODE " + this.testChannel.getName());
-        exe.execute(this.chanUser, cm, this.sm);
+        ClientMessage cm = this.commandParser.parse("MODE " + this.testChannel.getName());
+        exe.execute(this.chanUser, cm, this.serverManager);
 
-        ServerMessage expected = new ServerMessage(this.sm.getName(), ServerMessage.RPL_CHANNELMODEIS, this.chanUser.getClientInfo().getNick() + " " + this.testChannel.getName() + " +mt");
+        ServerMessage expected = new ServerMessage(this.serverManager.getName(), ServerMessage.RPL_CHANNELMODEIS, this.chanUser.getClientInfo().getNick() + " " + this.testChannel.getName() + " +mt");
 
         assertEquals(this.chanUser.getLastOutput().compile(), expected.compile());
     }
@@ -118,9 +118,9 @@ public class CHANMODETest extends CommandTest {
         CHANMODE exe = new CHANMODE();
 
         Mode badMode = new Mode("A", "Bad Mode");
-        ClientMessage cm = this.cp.parse("MODE " + this.testChannel.getName() + " +" + badMode.getFlag());
+        ClientMessage cm = this.commandParser.parse("MODE " + this.testChannel.getName() + " +" + badMode.getFlag());
 
-        exe.execute(this.chanOp, cm, this.sm);
+        exe.execute(this.chanOp, cm, this.serverManager);
         assertEquals(this.chanOp.getLastOutput().getServerReply(), ServerMessage.ERR_UNKNOWNMODE);
     }
 
@@ -131,9 +131,9 @@ public class CHANMODETest extends CommandTest {
         // Test mode that requires an arg
         String modeThatRequiresArg = Mode.BAN_MASK.getFlag();
 
-        ClientMessage cm = this.cp.parse("MODE " + this.testChannel.getName() + " +t" + modeThatRequiresArg);
+        ClientMessage cm = this.commandParser.parse("MODE " + this.testChannel.getName() + " +t" + modeThatRequiresArg);
 
-        exe.execute(this.chanOp, cm, this.sm);
+        exe.execute(this.chanOp, cm, this.serverManager);
         assertEquals(this.chanOp.getLastOutput().getServerReply(), ServerMessage.ERR_NEEDMOREPARAMS);
     }
 

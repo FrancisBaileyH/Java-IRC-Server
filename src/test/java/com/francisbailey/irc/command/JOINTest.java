@@ -33,11 +33,11 @@ public class JOINTest extends CommandTest {
         Executable exe = new JOIN();
         MockConnection c = MockRegisteredConnectionFactory.build();
 
-        ClientMessage cm = this.cp.parse("JOIN #nochannel");
+        ClientMessage cm = this.commandParser.parse("JOIN #nochannel");
 
-        exe.execute(c, cm, this.sm);
+        exe.execute(c, cm, this.serverManager);
 
-        ServerMessage expected = new ServerMessage(this.sm.getName(), ServerMessage.ERR_NOSUCHCHANNEL, c.getClientInfo().getNick() + " #nochannel :No such channel");
+        ServerMessage expected = new ServerMessage(this.serverManager.getName(), ServerMessage.ERR_NOSUCHCHANNEL, c.getClientInfo().getNick() + " #nochannel :No such channel");
         assertEquals("Incorrect non-existent channel message", c.getLastOutput().compile(), expected.compile());
     }
 
@@ -54,12 +54,12 @@ public class JOINTest extends CommandTest {
         MockConnection userB = MockRegisteredConnectionFactory.build();
         MockConnection joiner = MockRegisteredConnectionFactory.build();
 
-        this.cm.getChannel("#general").addUser(userA);
-        this.cm.getChannel("#general").addUser(userB);
+        this.channelManager.getChannel("#general").addUser(userA);
+        this.channelManager.getChannel("#general").addUser(userB);
 
-        ClientMessage cm = this.cp.parse("JOIN #general");
+        ClientMessage cm = this.commandParser.parse("JOIN #general");
         Executable exe = new JOIN();
-        exe.execute(joiner, cm, this.sm);
+        exe.execute(joiner, cm, this.serverManager);
 
         ServerMessage expected = new ServerMessage(joiner.getClientInfo().getHostmask(), ServerMessage.RPL_JOIN, "#general");
 

@@ -12,20 +12,20 @@ import java.io.File;
 public class CommandTest {
 
 
-    protected MockServerManager sm;
-    protected ChannelManager cm;
-    protected CommandParser cp;
+    protected MockServerManager serverManager;
+    protected ChannelManager channelManager;
+    protected CommandParser commandParser;
 
     @Before
     public void setUp() throws Exception {
 
         File f = new File("src/test/java/test-config.xml");
         XMLConfigurationReader xcr = new XMLConfigurationReader(f);
-        Config config = new Config(xcr.getConfiguration());
+        Config config = new XMLConfig(xcr.getConfiguration());
 
-        this.cm = new ChannelManager(config.channels);
-        this.sm = new MockServerManager("mockserver", this.cm);
-        this.cp = new CommandParser("mockserver");
+        this.channelManager = new ChannelManager(config.getChannels());
+        this.serverManager = new MockServerManager("mockserver", this.channelManager);
+        this.commandParser = new CommandParser("mockserver");
     }
 
 }

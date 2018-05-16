@@ -6,7 +6,6 @@ import com.francisbailey.irc.*;
 import com.francisbailey.irc.command.internal.USERMODE;
 import com.francisbailey.irc.exception.MissingCommandParametersException;
 import com.francisbailey.irc.mode.Mode;
-import com.francisbailey.irc.mode.ModeSet;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,14 +37,14 @@ public class USERMODETest extends CommandTest {
         Connection c = MockRegisteredConnectionFactory.build();
         String nick = c.getClientInfo().getNick();
 
-        ClientMessage cmA = this.cp.parse("MODE " + nick + " +O");
-        ClientMessage cmB = this.cp.parse("MODE " + nick + " +o");
-        ClientMessage cmC = this.cp.parse("MODE " + nick + " +a");
+        ClientMessage cmA = this.commandParser.parse("MODE " + nick + " +O");
+        ClientMessage cmB = this.commandParser.parse("MODE " + nick + " +o");
+        ClientMessage cmC = this.commandParser.parse("MODE " + nick + " +a");
 
         Executable exe = new USERMODE();
-        exe.execute(c, cmA, this.sm);
-        exe.execute(c, cmB, this.sm);
-        exe.execute(c, cmC, this.sm);
+        exe.execute(c, cmA, this.serverManager);
+        exe.execute(c, cmB, this.serverManager);
+        exe.execute(c, cmC, this.serverManager);
 
         assertFalse(c.getModes().hasMode(Mode.LOCAL_OPERATOR));
         assertFalse(c.getModes().hasMode(Mode.OPERATOR));
@@ -61,16 +60,16 @@ public class USERMODETest extends CommandTest {
     public void testNonexistentMode() throws MissingCommandParametersException {
 
         MockConnection userA = MockRegisteredConnectionFactory.build();
-        this.sm.setFindNickValue(userA);
+        this.serverManager.setFindNickValue(userA);
 
         String userANick = userA.getClientInfo().getNick();
 
-        ClientMessage cm = this.cp.parse("MODE " + userANick + " +g");
+        ClientMessage cm = this.commandParser.parse("MODE " + userANick + " +g");
 
         Executable exe = new USERMODE();
-        exe.execute(userA, cm, this.sm);
+        exe.execute(userA, cm, this.serverManager);
 
-        ServerMessage expected = new ServerMessage(this.sm.getName(), ServerMessage.ERR_UMODEUNKNOWNFLAG, userANick + " :Unknown umode flag");
+        ServerMessage expected = new ServerMessage(this.serverManager.getName(), ServerMessage.ERR_UMODEUNKNOWNFLAG, userANick + " :Unknown umode flag");
         assertEquals(expected.getServerReply(), userA.getLastOutput().getServerReply());
         assertFalse(userA.getModes().hasMode(new Mode("g", "UNKNOWN MODE")));
     }
@@ -88,14 +87,14 @@ public class USERMODETest extends CommandTest {
         MockConnection userB = MockRegisteredConnectionFactory.build();
 
         String userBNick = userB.getClientInfo().getNick();
-        this.sm.setFindNickValue(userB);
+        this.serverManager.setFindNickValue(userB);
 
-        ClientMessage cm = this.cp.parse("MODE " + userBNick + " +i");
+        ClientMessage cm = this.commandParser.parse("MODE " + userBNick + " +i");
 
         Executable exe = new USERMODE();
-        exe.execute(userA, cm, this.sm);
+        exe.execute(userA, cm, this.serverManager);
 
-        ServerMessage expected = new ServerMessage(this.sm.getName(), ServerMessage.ERR_USERSDONTMATCH, userA.getClientInfo().getNick() +  " :Can't change mode for other users");
+        ServerMessage expected = new ServerMessage(this.serverManager.getName(), ServerMessage.ERR_USERSDONTMATCH, userA.getClientInfo().getNick() +  " :Can't change mode for other users");
 
         assertEquals(expected.getServerReply(), userA.getLastOutput().getServerReply());
         assertFalse(userB.getModes().hasMode(Mode.INVISIBLE));
@@ -113,10 +112,10 @@ public class USERMODETest extends CommandTest {
         userA.getModes().addMode(Mode.RESTRICTED);
         String userANick = userA.getClientInfo().getNick();
 
-        ClientMessage cm = this.cp.parse("MODE " + userANick + " -r");
+        ClientMessage cm = this.commandParser.parse("MODE " + userANick + " -r");
 
         Executable exe = new USERMODE();
-        exe.execute(userA, cm, this.sm);
+        exe.execute(userA, cm, this.serverManager);
 
         assertTrue(userA.getModes().hasMode(Mode.RESTRICTED));
     }

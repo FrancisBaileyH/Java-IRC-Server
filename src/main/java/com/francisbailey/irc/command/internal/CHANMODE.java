@@ -57,7 +57,7 @@ public class CHANMODE implements Executable {
             c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, nick + " " + chanName + " :No such channel, can't change mode"));
         }
         else if (cm.getParameterCount() < 2) {
-            String modes = channel.getModes().toString();
+            String modes = channel.getModes();
 
             if (modes.length() < 1) {
                 c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOCHANMODES, nick));

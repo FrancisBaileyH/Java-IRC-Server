@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class MockServerManager implements ServerManager {
 
 
-    private MockConfig config;
+    private Config config;
     private ChannelManager cm;
     private MockChannelModeStrategy cms;
     private String name;
@@ -60,7 +60,7 @@ public class MockServerManager implements ServerManager {
 
     @Override
     public Config getConfig() {
-        return null;
+        return this.config;
     }
 
     @Override
