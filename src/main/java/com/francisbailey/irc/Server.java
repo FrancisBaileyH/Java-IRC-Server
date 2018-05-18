@@ -85,7 +85,7 @@ public class Server implements ConnectionDelegate, ServerManager, Loggable {
             this.socket = new ServerSocket(port);
         }
         catch (IOException e) {
-            logger().error("Exiting. Failed to initiate socket. %s", e.getStackTrace());
+            logger().error("Exiting. Failed to initiate socket. {}", e.getStackTrace());
         }
     }
 
