@@ -10,12 +10,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 
 /**
  * Created by fbailey on 02/11/16.
  */
-public class Server implements ConnectionDelegate, ServerManager {
+public class Server implements ConnectionDelegate, ServerManager, Loggable {
 
 
     private ServerSocket socket;
@@ -84,7 +85,7 @@ public class Server implements ConnectionDelegate, ServerManager {
             this.socket = new ServerSocket(port);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            logger().error("Exiting. Failed to initiate socket. {}", e.getStackTrace());
         }
     }
 
@@ -126,7 +127,8 @@ public class Server implements ConnectionDelegate, ServerManager {
             while (true) {
 
                 Socket s = this.socket.accept();
-                IrcConnection c = new IrcConnection(s, this);
+                String uuid = UUID.randomUUID().toString();
+                IrcConnection c = new IrcConnection(s, this, uuid);
 
                 this.connections.add(c);
                 Thread t = new Thread(c);
@@ -134,7 +136,8 @@ public class Server implements ConnectionDelegate, ServerManager {
             }
         }
         catch (IOException e) {
-            e.printStackTrace();
+            logger().error("Unable to to accept connection");
+            logger().debug(e.getStackTrace());
         }
     }
 
@@ -148,7 +151,7 @@ public class Server implements ConnectionDelegate, ServerManager {
 
         try {
             ClientMessage cm = this.parser.parse(command);
-            System.out.println(cm.getMessage());
+            logger().debug("{} {}", c.getId(), cm.getMessage());
             Executable e = this.cf.build(cm);
 
             if (cm.getParameterCount() < e.getMinimumParams()) {
@@ -181,9 +184,14 @@ public class Server implements ConnectionDelegate, ServerManager {
      */
     public synchronized void closeConnection(Connection c) {
 
-        this.connections.remove(c);
-        this.registeredConnections.remove(c);
-        c.terminate();
+        try {
+            this.connections.remove(c);
+            this.registeredConnections.remove(c);
+            c.terminate();
+        } catch (Exception e) {
+            logger().error("An error occurred while closing connection");
+            logger().debug(e.getStackTrace());
+        }
     }
 
 

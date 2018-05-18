@@ -12,7 +12,7 @@ import java.net.Socket;
 /**
  * @TODO PING Timer & Registration Timer
  */
-public class IrcConnection implements Runnable, Connection {
+public class IrcConnection implements Runnable, Connection, Loggable {
 
 
     private Socket socket;
@@ -23,15 +23,17 @@ public class IrcConnection implements Runnable, Connection {
     private Client clientInfo;
     private ConnectionDelegate delegate;
     private ModeSet modes;
+    private String id;
 
 
-    public IrcConnection(Socket s, ConnectionDelegate d) {
+    public IrcConnection(Socket s, ConnectionDelegate d, final String id) {
         this.socket = s;
         this.delegate = d;
         this.terminated = false;
         this.registered = false;
         this.clientInfo = new Client(null, null, null, null);
         this.modes = new ModeSet();
+        this.id = id;
     }
 
 
@@ -53,8 +55,12 @@ public class IrcConnection implements Runnable, Connection {
 
             this.socket.close();
         }
-        catch (Exception e) {
-            e.printStackTrace();
+        catch (IOException e) {
+            logger().error("Connection: {} terminated unexpectedly", this.id);
+            logger().error("Cleaning up connection: {}", this.id);
+            logger().debug(e.getStackTrace());
+
+            this.delegate.closeConnection(this);
         }
     }
 
@@ -90,13 +96,15 @@ public class IrcConnection implements Runnable, Connection {
     public void send(SendableMessage message) {
 
         String output = message.compile();
-        System.out.println(output);
+        logger().debug("Sending: {}", output);
+
         try {
             this.out.write(output);
             this.out.flush();
         }
         catch (IOException e) {
-            e.printStackTrace();
+            logger().error("Unable to write to connection.");
+            logger().debug(e.getStackTrace());
         }
     }
 
@@ -135,5 +143,9 @@ public class IrcConnection implements Runnable, Connection {
 
     public void setModes(ModeSet s) {
         this.modes = s;
+    }
+
+    public final String getId() {
+        return this.id;
     }
 }

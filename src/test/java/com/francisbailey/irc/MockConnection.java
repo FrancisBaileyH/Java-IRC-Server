@@ -89,4 +89,9 @@ public class MockConnection implements Connection {
     public void setModes(ModeSet ms) {
         this.modes = ms;
     }
+
+    @Override
+    public String getId() {
+        return null;
+    }
 }

@@ -1,9 +1,12 @@
 package com.francisbailey.irc;
 
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.IOException;
+
+
 
 public class Main {
 
@@ -14,6 +17,11 @@ public class Main {
     public static void main(String[] args) throws ConfigurationException {
 
         File f = new File("config.xml");
+
+        System.setProperty("log4j.configurationFile", "log4j.properties");
+
+        Logger logger = LogManager.getLogger(Main.class);
+        logger.info("Starting up server...");
 
         XMLConfigurationReader xcr = new XMLConfigurationReader(f);
         Config config = new XMLConfig(xcr.getConfiguration());

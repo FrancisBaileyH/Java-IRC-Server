@@ -20,7 +20,7 @@ Work in progress IRC server
 - [ ] INVITE command
 - [ ] Ban Masks
 - [ ] Channel creation
-- [ ] Logging
+- [x] Logging
 
 #### Milestone 3 - Server Protection:
 - [ ] Flood Protection and Penalties
