@@ -15,4 +15,5 @@ public interface Connection {
     public String getHostNameInfo();
     public ModeSet getModes();
     public void setModes(ModeSet ms);
+    public String getId();
 }

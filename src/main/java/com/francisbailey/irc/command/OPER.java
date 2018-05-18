@@ -24,6 +24,7 @@ public class OPER implements Executable {
         String password = operators.get(inputUsername);
 
         if (password != null && password.equals(inputPassword)) {
+            logger().debug("{} identified. Adding mode {}.", inputUsername, Mode.OPERATOR.getFlag());
             c.getModes().addMode(Mode.OPERATOR);
             c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_YOUREOP, c.getClientInfo().getNick() + " :You are now an IRC operator"));
             USERMODE m = new USERMODE();
@@ -32,6 +33,7 @@ public class OPER implements Executable {
             return;
         }
 
+        logger().info("Failed login attempt for: {}", inputUsername);
         c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_PASSWDMISMATCH, c.getClientInfo().getNick() + " :Invalid username or password"));
     }
 
