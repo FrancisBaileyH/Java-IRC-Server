@@ -1,8 +1,14 @@
 package com.francisbailey.irc.command;
 
-import com.francisbailey.irc.*;
+import com.francisbailey.irc.Channel;
+import com.francisbailey.irc.Client;
+import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.Executable;
+import com.francisbailey.irc.ServerManager;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
+import com.francisbailey.irc.message.ServerMessageBuilder;
 import com.francisbailey.irc.mode.Mode;
-import com.francisbailey.irc.mode.ModeSet;
 
 /**
  * Created by fbailey on 04/12/16.
@@ -10,37 +16,45 @@ import com.francisbailey.irc.mode.ModeSet;
 public class WHO implements Executable {
 
 
-    public void execute(Connection c, ClientMessage cm, ServerManager instance) {
+    public void execute(Connection connection, ClientMessage clientMessage, ServerManager server) {
 
-        Channel chan = instance.getChannelManager().getChannel(cm.getParameter(0));
+        Channel channel = server.getChannelManager().getChannel(clientMessage.getParameter(0));
 
-        if (chan != null) {
+        if (channel != null) {
 
-            for (Connection user: chan.getUsers()) {
+            for (Connection user: channel.getUsers()) {
 
                 if (!user.getModes().hasMode(Mode.INVISIBLE)) {
-                    Client ci = user.getClientInfo();
-                    String message = ci.getNick();
-                    message += " " + chan.getName();
-                    message += " " + ci.getUsername();
-                    message += " " + ci.getHostname();
-                    message += " " + instance.getName();
-                    message += " " + ci.getNick();
-                    message += " :0 " + ci.getRealname(); // @TODO change hop count to be dynamic
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_WHOREPLY, message));
+                    Client clientInfo = user.getClientInfo();
+                    String message = clientInfo.getNick();
+                    message += " " + channel.getName();
+                    message += " " + clientInfo.getUsername();
+                    message += " " + clientInfo.getHostname();
+                    message += " " + server.getName();
+                    message += " " + clientInfo.getNick();
+                    message += " :0 " + clientInfo.getRealname(); // @TODO change hop count to be dynamic
+
+                    connection.send(ServerMessageBuilder
+                        .from(server.getName())
+                        .withReplyCode(ServerMessage.RPL_WHOREPLY)
+                        .andMessage(message)
+                        .build()
+                    );
                 }
             }
 
-            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_ENDOFWHO));
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.RPL_ENDOFWHO)
+                .build()
+            );
         }
     }
-
 
 
     public int getMinimumParams() {
         return 1;
     }
-
 
 
     public Boolean canExecuteUnregistered() {

@@ -1,6 +1,11 @@
 package com.francisbailey.irc.command;
 
-import com.francisbailey.irc.*;
+import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.Executable;
+import com.francisbailey.irc.ServerManager;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
+import com.francisbailey.irc.message.ServerMessageBuilder;
 
 /**
  * Created by fbailey on 15/12/16.
@@ -8,22 +13,43 @@ import com.francisbailey.irc.*;
 public class MOTD implements Executable {
 
 
-    public void execute(Connection c, ClientMessage cm, ServerManager instance) {
+    public void execute(Connection connection, ClientMessage clientMessage, ServerManager server) {
 
-        String motd = instance.getConfig().getMotd();
+        String motd = server.getConfig().getMotd();
 
         if (motd == null) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOMOTD, c.getClientInfo().getNick()));
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.ERR_NOMOTD)
+                .andMessage(connection.getClientInfo().getNick())
+                .build()
+            );
         }
         else {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_MOTDSTART, ":- Message of the day - "));
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.RPL_MOTDSTART)
+                .andMessage(":- Message of the day - ")
+                .build()
+            );
+
             String chunkedMessage = motd.replaceAll("(.{80})", "$1\n");
 
             for (String message: chunkedMessage.split("\\n")) {
-                c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_MOTD, ":- " + message));
+                connection.send(ServerMessageBuilder
+                    .from(server.getName())
+                    .withReplyCode(ServerMessage.RPL_MOTD)
+                    .andMessage(":- " + message)
+                    .build()
+                );
             }
 
-            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_ENDOFMOTD, ":End of the message of the day"));
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.RPL_ENDOFMOTD)
+                .andMessage(":End of the message of the day")
+                .build()
+            );
         }
     }
 

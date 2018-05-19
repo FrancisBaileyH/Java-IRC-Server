@@ -1,4 +1,4 @@
-package com.francisbailey.irc;
+package com.francisbailey.irc.message;
 
 import java.util.ArrayList;
 

@@ -2,8 +2,16 @@ package com.francisbailey.irc;
 
 import com.francisbailey.irc.exception.InvalidCommandException;
 import com.francisbailey.irc.exception.MissingCommandParametersException;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
 import com.francisbailey.irc.mode.Mode;
-import com.francisbailey.irc.mode.strategy.*;
+import com.francisbailey.irc.mode.strategy.ChannelModeArgStrategy;
+import com.francisbailey.irc.mode.strategy.ChannelModeMaskStrategy;
+import com.francisbailey.irc.mode.strategy.ChannelModeStrategy;
+import com.francisbailey.irc.mode.strategy.ChannelUserModeStrategy;
+import com.francisbailey.irc.mode.strategy.StandardChannelModeStrategy;
+import com.francisbailey.irc.mode.strategy.StandardUserModeStrategy;
+import com.francisbailey.irc.mode.strategy.UserModeStrategy;
 
 import java.io.IOException;
 import java.net.ServerSocket;

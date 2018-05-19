@@ -6,6 +6,7 @@ package com.francisbailey.irc;
 
 
 import com.francisbailey.irc.exception.MissingCommandParametersException;
+import com.francisbailey.irc.message.ClientMessage;
 
 import java.util.ArrayList;
 

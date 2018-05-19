@@ -1,6 +1,12 @@
 package com.francisbailey.irc.command;
 
-import com.francisbailey.irc.*;
+import com.francisbailey.irc.Channel;
+import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.Executable;
+import com.francisbailey.irc.ServerManager;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
+import com.francisbailey.irc.message.ServerMessageBuilder;
 
 import java.util.ArrayList;
 
@@ -10,34 +16,37 @@ import java.util.ArrayList;
 public class QUIT implements Executable {
 
 
-    public void execute(Connection c, ClientMessage cm, ServerManager instance) {
+    public void execute(Connection connection, ClientMessage clientMessage, ServerManager server) {
 
-        ArrayList<Channel> channels = instance.getChannelManager().getChannelsByUser(c);
+        ArrayList<Channel> channels = server.getChannelManager().getChannelsByUser(connection);
         ArrayList<Connection> exclude = new ArrayList<>();
-        exclude.add(c);
+        exclude.add(connection);
 
         String message = "";
 
-        if (cm.getParameterCount() > 0) {
-            message = cm.getParameter(0);
+        if (clientMessage.getParameterCount() > 0) {
+            message = clientMessage.getParameter(0);
         }
 
         for (Channel chan: channels) {
             PART command = new PART();
-            command.partFromChannel(chan, c, message);
+            command.partFromChannel(chan, connection, message);
         }
 
-        c.send(new ServerMessage(c.getClientInfo().getHostmask(), ServerMessage.RPL_QUIT, ":" + message));
+        connection.send(ServerMessageBuilder
+            .from(connection.getClientInfo().getHostmask())
+            .withReplyCode(ServerMessage.RPL_QUIT)
+            .andMessage(":" + message)
+            .build()
+        );
 
-        instance.closeConnection(c);
+        server.closeConnection(connection);
     }
-
 
 
     public int getMinimumParams() {
         return 0;
     }
-
 
 
     public Boolean canExecuteUnregistered() {

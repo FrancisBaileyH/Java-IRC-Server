@@ -20,6 +20,14 @@ public class Client {
     }
 
 
+    public Client() {
+        this.nick = "*";
+        this.username = "*";
+        this.hostName = "*";
+        this.realName = "*";
+    }
+
+
     /**
      *  Compile the nick, username and hostname into an IRC hostmask.
      *

@@ -1,6 +1,12 @@
 package com.francisbailey.irc.command;
 
-import com.francisbailey.irc.*;
+import com.francisbailey.irc.Channel;
+import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.Executable;
+import com.francisbailey.irc.ServerManager;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
+import com.francisbailey.irc.message.ServerMessageBuilder;
 
 import java.util.ArrayList;
 
@@ -15,40 +21,48 @@ import java.util.ArrayList;
 public class NICK implements Executable {
 
 
-    private ServerManager instance;
-    private Connection c;
-    private ClientMessage cm;
+    public void execute(Connection connection, ClientMessage clientMessage, ServerManager server) {
 
+        String nick = clientMessage.getParameter(0);
 
-
-    public void execute(Connection c, ClientMessage cm, ServerManager instance) {
-
-        this.c = c;
-        this.cm = cm;
-        this.instance = instance;
-
-        String serverName = instance.getName();
-
-        String nick = cm.getParameter(0);
-        String replyCode = nickIsValid(nick);
-
-        if (replyCode != null) {
-
-            String message = "";
-
-            if (c.isRegistered()) {
-                message = c.getClientInfo().getNick();
-            }
-            else {
-                message = "*";
-            }
-
-            message = message + " " + nick + " :Nickname already in use";
-
-            c.send(new ServerMessage(serverName, replyCode, message));
+        if (server.findConnectionByNick(nick) != null) {
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.ERR_NICKNAMEINUSE)
+                .andMessage(connection.getClientInfo().getNick() + " " + nick + " :Nickname already in use")
+                .build()
+            );
         }
-        else {
-            setNickChange(nick);
+        else if (!isValidNick(nick)) {
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.ERR_ERRONEOUSNICKNAME)
+                .build()
+            );
+        }
+        else if (connection.isRegistered()) {
+            String oldHostmask = connection.getClientInfo().getHostmask();
+            connection.getClientInfo().setNick(nick);
+
+            ArrayList<Channel> channels = server.getChannelManager().getChannelsByUser(connection);
+            ArrayList<Connection> exclude = new ArrayList<>();
+            exclude.add(connection);
+
+            for (Channel chan: channels) {
+                chan.broadcast(ServerMessageBuilder
+                    .from(oldHostmask)
+                    .withReplyCode(ServerMessage.RPL_NICK)
+                    .andMessage(nick)
+                    .build(),
+                exclude);
+            }
+
+            connection.send(ServerMessageBuilder
+                .from(oldHostmask)
+                .withReplyCode(ServerMessage.RPL_NICK)
+                .andMessage(nick)
+                .build()
+            );
         }
     }
 
@@ -66,47 +80,19 @@ public class NICK implements Executable {
 
 
     /**
-     * Handle the nick change, including seeing if the nickname
-     * change needs to be broadcasted.
-     * @param nick
-     */
-    private void setNickChange(String nick) {
-
-        String oldName = c.getClientInfo().getHostmask();
-        c.getClientInfo().setNick(nick);
-
-        if (c.isRegistered()) {
-
-            ArrayList<Channel> channels = instance.getChannelManager().getChannelsByUser(c);
-            ArrayList<Connection> exclude = new ArrayList<>();
-            exclude.add(c);
-
-            for (Channel chan: channels) {
-                chan.broadcast(new ServerMessage(oldName, ServerMessage.RPL_NICK, nick), exclude);
-            }
-
-            c.send(new ServerMessage(oldName, ServerMessage.RPL_NICK, nick));
-        }
-    }
-
-
-    /**
      * Check if a nickname is valid and return
      * a server reply code if it's not.
      *
      * @param nick
      * @return
      */
-    private String nickIsValid(String nick) {
+    private boolean isValidNick(String nick) {
 
         if (nick.length() > 9) {
-            return ServerMessage.ERR_ERRONEOUSNICKNAME;
-        }
-        else if (instance.findConnectionByNick(nick) != null) {
-            return ServerMessage.ERR_NICKNAMEINUSE;
+            return false;
         }
 
-        return null;
+        return true;
     }
 
 }

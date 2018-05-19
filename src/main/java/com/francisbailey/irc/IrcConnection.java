@@ -1,5 +1,6 @@
 package com.francisbailey.irc;
 
+import com.francisbailey.irc.message.SendableMessage;
 import com.francisbailey.irc.mode.ModeSet;
 
 import java.io.*;
@@ -31,7 +32,7 @@ public class IrcConnection implements Runnable, Connection, Loggable {
         this.delegate = d;
         this.terminated = false;
         this.registered = false;
-        this.clientInfo = new Client(null, null, null, null);
+        this.clientInfo = new Client();
         this.modes = new ModeSet();
         this.id = id;
     }

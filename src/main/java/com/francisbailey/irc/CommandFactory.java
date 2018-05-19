@@ -2,6 +2,7 @@ package com.francisbailey.irc;
 
 
 import com.francisbailey.irc.exception.InvalidCommandException;
+import com.francisbailey.irc.message.ClientMessage;
 
 /**
  * Created by fbailey on 16/11/16.

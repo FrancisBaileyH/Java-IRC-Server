@@ -3,7 +3,7 @@ package com.francisbailey.irc.mode.strategy;
 import com.francisbailey.irc.Channel;
 import com.francisbailey.irc.Connection;
 import com.francisbailey.irc.ServerManager;
-import com.francisbailey.irc.ServerMessage;
+import com.francisbailey.irc.message.ServerMessage;
 import com.francisbailey.irc.exception.IRCActionException;
 import com.francisbailey.irc.mode.Mode;
 

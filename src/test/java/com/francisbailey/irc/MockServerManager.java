@@ -1,6 +1,7 @@
 package com.francisbailey.irc;
 
 
+import com.francisbailey.irc.message.ServerMessage;
 import com.francisbailey.irc.mode.Mode;
 import com.francisbailey.irc.mode.strategy.ChannelModeStrategy;
 import com.francisbailey.irc.mode.strategy.UserModeStrategy;

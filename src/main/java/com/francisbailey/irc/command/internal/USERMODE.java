@@ -1,7 +1,11 @@
 package com.francisbailey.irc.command.internal;
 
-
-import com.francisbailey.irc.*;
+import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.Executable;
+import com.francisbailey.irc.ServerManager;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
+import com.francisbailey.irc.message.ServerMessageBuilder;
 import com.francisbailey.irc.mode.Mode;
 import com.francisbailey.irc.mode.strategy.UserModeStrategy;
 
@@ -20,10 +24,20 @@ public class USERMODE implements Executable {
 
         // Check if nick matches user
         if (!targetNick.equals(nick) && !c.getModes().hasMode(Mode.OPERATOR)) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_USERSDONTMATCH, nick + " :Can't change mode for other users"));
+              c.send(ServerMessageBuilder
+                  .from(instance.getName())
+                  .withReplyCode(ServerMessage.ERR_USERSDONTMATCH)
+                  .andMessage(nick + " :Can't change mode for other users")
+                  .build()
+            );
         }
         else if (target == null) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHNICK, nick + " :No such user"));
+            c.send(ServerMessageBuilder
+                .from(instance.getName())
+                .withReplyCode(ServerMessage.ERR_NOSUCHNICK)
+                .andMessage(nick + " :No such user")
+                .build()
+            );
         }
         else if (cm.getParameterCount() < 2) {
             this.sendUsermode(c, target, instance);
@@ -33,8 +47,12 @@ public class USERMODE implements Executable {
 
             if (modeAction.length() != 2 || !Mode.userModes.containsKey(modeAction.substring(1))
             || (!modeAction.startsWith("+") && !modeAction.startsWith("-"))) {
-
-                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UMODEUNKNOWNFLAG, nick + " :Unknown umode flag"));
+                c.send(ServerMessageBuilder
+                    .from(instance.getName())
+                    .withReplyCode(ServerMessage.ERR_UMODEUNKNOWNFLAG)
+                    .andMessage(nick + " :Unknown umode flag")
+                    .build()
+                );
             } else {
                 String operation = modeAction.substring(0, 1);
                 String flag = modeAction.substring(1);
@@ -60,10 +78,15 @@ public class USERMODE implements Executable {
      * @param c
      */
     public void sendUsermode(Connection c, Connection target, ServerManager instance) {
-
         String nick = target.getClientInfo().getNick();
         String modes = target.getModes().toString();
-        c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_UMODEIS, nick + " :+" + modes));
+
+        c.send(ServerMessageBuilder
+            .from(instance.getName())
+            .withReplyCode(ServerMessage.RPL_UMODEIS)
+            .andMessage(nick + " :+" + modes)
+            .build()
+        );
     }
 
 

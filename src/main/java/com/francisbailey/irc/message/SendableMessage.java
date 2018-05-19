@@ -1,4 +1,4 @@
-package com.francisbailey.irc;
+package com.francisbailey.irc.message;
 
 /**
  * Created by fbailey on 02/11/16.

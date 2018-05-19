@@ -1,10 +1,17 @@
 package com.francisbailey.irc.command.internal;
 
-import com.francisbailey.irc.*;
+import com.francisbailey.irc.Channel;
+import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.Executable;
+import com.francisbailey.irc.ServerManager;
 import com.francisbailey.irc.exception.IRCActionException;
 import com.francisbailey.irc.exception.InvalidModeOperationException;
 import com.francisbailey.irc.exception.MissingModeArgumentException;
 import com.francisbailey.irc.exception.ModeNotFoundException;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
+import com.francisbailey.irc.message.ServerMessageBuilder;
+import com.francisbailey.irc.message.ServerMessageBuilderWithReplyCode;
 import com.francisbailey.irc.mode.*;
 import com.francisbailey.irc.mode.strategy.ChannelModeStrategy;
 
@@ -32,55 +39,76 @@ public class CHANMODE implements Executable {
         String arg;
         String operation;
 
-        ChannelModeStrategyStruct(ChannelModeStrategy s, Mode m, String op, String arg) {
-            this.strategy = s;
-            this.mode = m;
-            this.operation = op;
+        ChannelModeStrategyStruct(ChannelModeStrategy channelModeStrategy, Mode mode, String operation, String arg) {
+            this.strategy = channelModeStrategy;
+            this.mode = mode;
+            this.operation = operation;
             this.arg = arg;
         }
     }
 
 
     /**
-     * @param c
-     * @param cm
-     * @param instance
+     * @param connection
+     * @param clientMessage
+     * @param server
      */
     @Override
-    public void execute(Connection c, ClientMessage cm, ServerManager instance) {
+    public void execute(Connection connection, ClientMessage clientMessage, ServerManager server) {
 
-        String chanName = cm.getParameter(0);
-        Channel channel = instance.getChannelManager().getChannel(chanName);
-        String nick = c.getClientInfo().getNick();
+        String chanName = clientMessage.getParameter(0);
+        Channel channel = server.getChannelManager().getChannel(chanName);
+        String nick = connection.getClientInfo().getNick();
 
         if (channel == null) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, nick + " " + chanName + " :No such channel, can't change mode"));
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.ERR_NOSUCHCHANNEL)
+                .andMessage(nick + " " + chanName + " :No such channel, can't change mode")
+                .build()
+            );
         }
-        else if (cm.getParameterCount() < 2) {
+        else if (clientMessage.getParameterCount() < 2) {
             String modes = channel.getModes();
 
             if (modes.length() < 1) {
-                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOCHANMODES, nick));
+                connection.send(ServerMessageBuilder
+                    .from(server.getName())
+                    .withReplyCode(ServerMessage.ERR_NOCHANMODES)
+                    .andMessage(nick)
+                    .build()
+                );
             }
             else {
-                c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, nick + " " + chanName + " +" + channel.getModes()));
+                connection.send(ServerMessageBuilder
+                    .from(server.getName())
+                    .withReplyCode(ServerMessage.RPL_CHANNELMODEIS)
+                    .andMessage(nick + " " + chanName + " +" + channel.getModes())
+                    .build()
+                );
             }
         }
         else {
-            String modeAction = cm.getParameter(1);
+            String modeAction = clientMessage.getParameter(1);
             String message = nick + " " + channel.getName();
 
-            if (cm.getParameterCount() >= 2) {
+            if (clientMessage.getParameterCount() >= 2) {
 
-                if (!channel.hasModeForUser(c, Mode.CHAN_OPERATOR) && !channel.hasModeForUser(c, Mode.OWNER) && !c.getModes().hasMode(Mode.OPERATOR)) {
-                    c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_CHANOPRIVSNEEDED, nick + " " + chanName + " :Must be operator to change channel mode"));
+                if (!channel.hasModeForUser(connection, Mode.CHAN_OPERATOR) && !channel.hasModeForUser(connection, Mode.OWNER) && !connection.getModes().hasMode(Mode.OPERATOR)) {
+                    connection.send(ServerMessageBuilder
+                        .from(server.getName())
+                        .withReplyCode(ServerMessage.ERR_CHANOPRIVSNEEDED)
+                        .andMessage(nick + " " + chanName + " :Must be operator to change channel mode")
+                        .build()
+                    );
                 }
                 else {
-
                     String action = modeAction.substring(0, 1);
 
+                    ServerMessageBuilderWithReplyCode serverMessage = ServerMessageBuilder.from(server.getName());
+
                     if (Mode.channelModes.containsKey(action)) {
-                        this.listChannelMode(c, channel, Mode.channelModes.get(action));
+                        this.listChannelMode(connection, channel, Mode.channelModes.get(action));
                     }
                     else {
                         try {
@@ -92,30 +120,54 @@ public class CHANMODE implements Executable {
                             }
 
                             if (modeAction.length() > 2) {
-                                strategies = joinedModeParseStrategy(instance, cm);
+                                strategies = joinedModeParseStrategy(server, clientMessage);
                             } else {
-                                strategies = separatedModeParseStrategy(instance, cm);
+                                strategies = separatedModeParseStrategy(server, clientMessage);
                             }
 
                             for (ChannelModeStrategyStruct struct : strategies) {
                                 if (struct.operation.equals("+")) {
-                                    struct.strategy.addMode(channel, c, struct.mode, struct.arg);
+                                    struct.strategy.addMode(channel, connection, struct.mode, struct.arg);
                                 } else {
-                                    struct.strategy.removeMode(channel, c, struct.mode, struct.arg);
+                                    struct.strategy.removeMode(channel, connection, struct.mode, struct.arg);
                                 }
                             }
 
                             if (channel.getModes().length() > 0) {
-                                c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_CHANNELMODEIS, message + " +" + channel.getModes()));
+                                connection.send(serverMessage
+                                    .withReplyCode(ServerMessage.RPL_CHANNELMODEIS)
+                                    .andMessage(message + " +" + channel.getModes())
+                                    .build()
+                                );
                             }
-                        } catch (MissingModeArgumentException e) {
-                            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick + " :Missing mode argument"));
-                        } catch (ModeNotFoundException e) {
-                            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_UNKNOWNMODE, nick + " " + e.getMessage() + " :Unknown mode"));
-                        } catch (IRCActionException e) {
-                            c.send(new ServerMessage(instance.getName(), e.getReplyCode(), e.getMessage()));
-                        } catch (Exception e) {
-                            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NEEDMOREPARAMS, nick + " :Unable to parse mode arguments"));
+                        }
+                        catch (MissingModeArgumentException e) {
+                            connection.send(serverMessage
+                                .withReplyCode(ServerMessage.ERR_NEEDMOREPARAMS)
+                                .andMessage(nick + " :Missing mode argument")
+                                .build()
+                            );
+                        }
+                        catch (ModeNotFoundException e) {
+                            connection.send(serverMessage
+                                .withReplyCode( ServerMessage.ERR_UNKNOWNMODE)
+                                .andMessage(nick + " " + e.getMessage() + " :Unknown mode")
+                                .build()
+                            );
+                        }
+                        catch (IRCActionException e) {
+                            connection.send(serverMessage
+                                .withReplyCode(e.getReplyCode())
+                                .andMessage(e.getMessage())
+                                .build()
+                            );
+                        }
+                        catch (Exception e) {
+                            connection.send(serverMessage
+                                .withReplyCode(ServerMessage.ERR_NEEDMOREPARAMS)
+                                .andMessage(nick + " :Unable to parse mode arguments")
+                                .build()
+                            );
                         }
                     }
                 }
@@ -129,24 +181,24 @@ public class CHANMODE implements Executable {
      * MODE #channel +ve <mask>
      * MODE #channel +be <mask1> <mask2>
      *
-     * @param cm - client message to parse mode from
+     * @param clientMessage - client message to parse mode from
      * @return a list of "strategies" for setting each mode
      */
-    private ArrayList<ChannelModeStrategyStruct> joinedModeParseStrategy(ServerManager instance, ClientMessage cm)
-            throws ModeNotFoundException, MissingModeArgumentException, IllegalAccessException, InstantiationException {
-        int paramCount = cm.getParameterCount();
+    private ArrayList<ChannelModeStrategyStruct> joinedModeParseStrategy(ServerManager server, ClientMessage clientMessage)
+            throws ModeNotFoundException, MissingModeArgumentException {
+        int paramCount = clientMessage.getParameterCount();
         int modeArgIndex = 3;
         int argCount = 0;
 
-        String operation = cm.getParameter(2).substring(0, 1);
+        String operation = clientMessage.getParameter(2).substring(0, 1);
 
-        String[] flags = cm.getParameter(2).substring(1).split("");
+        String[] flags = clientMessage.getParameter(2).substring(1).split("");
         ArrayList<ChannelModeStrategyStruct> strategies = new ArrayList<>();
 
         for (String flag: flags) {
 
             Mode mode = Mode.channelModes.get(flag);
-            ChannelModeStrategy strategy = instance.getChannelModeStrategy(mode);
+            ChannelModeStrategy strategy = server.getChannelModeStrategy(mode);
 
             if (mode == null || strategy == null) {
                  throw new ModeNotFoundException(flag);
@@ -160,7 +212,7 @@ public class CHANMODE implements Executable {
 
             if (mode.requiresArg() && argCount < this.MAX_ARG_COUNT) {
                 if (modeArgIndex < paramCount) {
-                    arg = cm.getParameter(modeArgIndex);
+                    arg = clientMessage.getParameter(modeArgIndex);
                     modeArgIndex++;
                     argCount++;
                 } else {
@@ -182,18 +234,18 @@ public class CHANMODE implements Executable {
      * MODE #channel +b  <mask1> -e <mask2>
      * MODE #channel +O  <user>
      *
-     * @param cm
+     * @param clientMessage
      * @return
      */
-    private ArrayList<ChannelModeStrategyStruct> separatedModeParseStrategy(ServerManager instance, ClientMessage cm)
-            throws ModeNotFoundException, MissingModeArgumentException, InvalidModeOperationException, IllegalAccessException, InstantiationException {
+    private ArrayList<ChannelModeStrategyStruct> separatedModeParseStrategy(ServerManager server, ClientMessage clientMessage)
+            throws ModeNotFoundException, MissingModeArgumentException, InvalidModeOperationException {
 
-        int paramCount = cm.getParameterCount();
+        int paramCount = clientMessage.getParameterCount();
         int argCount = 0;
         ArrayList<ChannelModeStrategyStruct> strategies = new ArrayList<>();
 
         for (int modeArgIndex = 1; modeArgIndex < paramCount; modeArgIndex++) {
-            String modeAction = cm.getParameter(modeArgIndex);
+            String modeAction = clientMessage.getParameter(modeArgIndex);
 
             if (modeAction.length() != 2) {
                 throw new InvalidModeOperationException();
@@ -204,7 +256,7 @@ public class CHANMODE implements Executable {
             String flag = modeAction.substring(1);
 
             Mode mode = Mode.channelModes.get(flag);
-            ChannelModeStrategy strategy = instance.getChannelModeStrategy(mode);
+            ChannelModeStrategy strategy = server.getChannelModeStrategy(mode);
 
             if (mode == null || strategy == null) {
                 throw new ModeNotFoundException(flag);
@@ -223,7 +275,7 @@ public class CHANMODE implements Executable {
 
                 argCount++;
                 modeArgIndex++;
-                arg = cm.getParameter(modeArgIndex);
+                arg = clientMessage.getParameter(modeArgIndex);
             }
 
             ChannelModeStrategyStruct struct = new ChannelModeStrategyStruct(strategy, mode, operation, arg);
@@ -245,11 +297,11 @@ public class CHANMODE implements Executable {
      * e - exception masks
      *
      * @TODO - to be implemented
-     * @param c
-     * @param chan
+     * @param connection
+     * @param channel
      * @param mode
      */
-    private void listChannelMode(Connection c, Channel chan, Mode mode) {
+    private void listChannelMode(Connection connection, Channel channel, Mode mode) {
 
     }
 

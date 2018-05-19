@@ -1,6 +1,13 @@
 package com.francisbailey.irc.command;
 
-import com.francisbailey.irc.*;
+import com.francisbailey.irc.Channel;
+import com.francisbailey.irc.ChannelManager;
+import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.Executable;
+import com.francisbailey.irc.ServerManager;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
+import com.francisbailey.irc.message.ServerMessageBuilder;
 
 /**
  * Created by fbailey on 02/12/16.
@@ -8,30 +15,36 @@ import com.francisbailey.irc.*;
 public class PART implements Executable {
 
 
-    public void execute(Connection c, ClientMessage cm, ServerManager instance) {
+    public void execute(Connection connection, ClientMessage clientMessage, ServerManager server) {
 
-        String target = cm.getParameter(0);
+        String target = clientMessage.getParameter(0);
 
-        ChannelManager channelManager = instance.getChannelManager();
-
+        ChannelManager channelManager = server.getChannelManager();
         Channel channel = channelManager.getChannel(target);
 
         if (channel == null) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, c.getClientInfo().getNick()));
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.ERR_NOSUCHCHANNEL)
+                .andMessage(connection.getClientInfo().getNick())
+                .build()
+            );
         }
         else {
-            Channel chan = instance.getChannelManager().getChannel(target);
-
-            if (!chan.hasUser(c)) {
-                c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOTONCHANNEL,  c.getClientInfo().getNick()));
+             if (!channel.hasUser(connection)) {
+                connection.send(ServerMessageBuilder
+                    .from(server.getName())
+                    .withReplyCode(ServerMessage.ERR_NOTONCHANNEL)
+                    .andMessage(connection.getClientInfo().getNick())
+                    .build()
+                );
             }
             else {
-                String message = cm.getParameterCount() > 1 ? cm.getParameter(1) : null;
-                this.partFromChannel(chan, c, message);
+                String message = clientMessage.getParameterCount() > 1 ? clientMessage.getParameter(1) : null;
+                this.partFromChannel(channel, connection, message);
             }
         }
     }
-
 
 
     public int getMinimumParams() {
@@ -39,23 +52,25 @@ public class PART implements Executable {
     }
 
 
-
     public Boolean canExecuteUnregistered() {
         return false;
     }
 
 
-    public synchronized void partFromChannel(Channel chan, Connection c, String message) {
-        String m = chan.getName();
+    public synchronized void partFromChannel(Channel channel, Connection connection, String partMessage) {
+        String message = channel.getName();
 
-        if (message != null && !message.equals("")) {
-            m += " :" + message;
+        if (partMessage != null && !partMessage.equals("")) {
+            message += " :" + partMessage;
         }
 
-        String hostmask = c.getClientInfo().getHostmask();
-        ServerMessage sm = new ServerMessage(hostmask, ServerMessage.RPL_PART, m);
-        chan.broadcast(sm);
-        chan.removeUser(c);
+        channel.broadcast(ServerMessageBuilder
+            .from(connection.getClientInfo().getHostmask())
+            .withReplyCode(ServerMessage.RPL_PART)
+            .andMessage(message)
+            .build()
+        );
+        channel.removeUser(connection);
     }
 
 }

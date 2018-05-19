@@ -1,6 +1,12 @@
 package com.francisbailey.irc.command;
 
-import com.francisbailey.irc.*;
+import com.francisbailey.irc.Channel;
+import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.Executable;
+import com.francisbailey.irc.ServerManager;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
+import com.francisbailey.irc.message.ServerMessageBuilder;
 
 import java.util.ArrayList;
 
@@ -11,23 +17,27 @@ public class PRIVMSG implements Executable {
 
 
 
-    public void execute(Connection c, ClientMessage cm, ServerManager instance) {
+    public void execute(Connection connection, ClientMessage clientMessage, ServerManager server) {
 
-        String target = cm.getParameter(0);
-        String message = cm.getParameter(1);
+        String target = clientMessage.getParameter(0);
+        String message = clientMessage.getParameter(1);
 
         // target is a channel, check that the channel exists
-        if (instance.getChannelManager().isChannel(target)) {
-
-            Channel chan = instance.getChannelManager().getChannel(target);
-            sendChannelMessage(c, chan, target, message);
+        if (server.getChannelManager().isChannel(target)) {
+            Channel chan = server.getChannelManager().getChannel(target);
+            sendChannelMessage(connection, chan, target, message);
         }
-        else if (instance.getChannelManager().isChannelType(target)){
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHCHANNEL, c.getClientInfo().getNick()));
+        else if (server.getChannelManager().isChannelType(target)){
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.ERR_NOSUCHCHANNEL)
+                .andMessage(connection.getClientInfo().getNick())
+                .build()
+            );
         }
         else {
-            Connection targetCon = instance.findConnectionByNick(target);
-            sendPrivateMessage(c, targetCon, instance, message);
+            Connection targetConnection = server.findConnectionByNick(target);
+            sendPrivateMessage(connection, targetConnection, server, message);
         }
 
     }
@@ -45,29 +55,46 @@ public class PRIVMSG implements Executable {
     }
 
 
-    private void sendChannelMessage(Connection c, Channel chan, String target, String message) {
+    private void sendChannelMessage(Connection connection, Channel channel, String target, String message) {
 
-        if (chan.hasUser(c)) {
-
+        if (channel.hasUser(connection)) {
             ArrayList<Connection> excluded = new ArrayList<>();
-            excluded.add(c);
-            ServerMessage sm = new ServerMessage(c.getClientInfo().getHostmask(), ServerMessage.RPL_PRIVMSG, target + " :" + message);
-            chan.broadcast(sm, excluded);
+            excluded.add(connection);
+
+            channel.broadcast(ServerMessageBuilder
+                .from(connection.getClientInfo().getHostmask())
+                .withReplyCode(ServerMessage.RPL_PRIVMSG)
+                .andMessage(target + " :" + message)
+                .build(),
+            excluded);
         }
         else {
-            ServerMessage sm = new ServerMessage(c.getClientInfo().getHostmask(), ServerMessage.ERR_NOTONCHANNEL, c.getClientInfo().getNick() + " :not on channel");
-            c.send(sm);
+            connection.send(ServerMessageBuilder
+                .from(connection.getClientInfo().getHostmask())
+                .withReplyCode(ServerMessage.ERR_NOTONCHANNEL)
+                .andMessage(connection.getClientInfo().getNick() + " :not on channel")
+                .build()
+            );
         }
     }
 
 
-    private void sendPrivateMessage(Connection c, Connection targetCon, ServerManager instance, String message) {
+    private void sendPrivateMessage(Connection connection, Connection targetConnection, ServerManager server, String message) {
 
-        if (targetCon == null) {
-            c.send(new ServerMessage(instance.getName(), ServerMessage.ERR_NOSUCHNICK, c.getClientInfo().getNick()));
+        if (targetConnection == null) {
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.ERR_NOSUCHNICK)
+                .andMessage(connection.getClientInfo().getNick())
+                .build()
+            );
         } else {
-            ServerMessage sm = new ServerMessage(c.getClientInfo().getHostmask(), ServerMessage.RPL_PRIVMSG, targetCon.getClientInfo().getNick() + " :" + message);
-            targetCon.send(sm);
+            targetConnection.send(ServerMessageBuilder
+                .from(connection.getClientInfo().getHostmask())
+                .withReplyCode(ServerMessage.RPL_PRIVMSG)
+                .andMessage(targetConnection.getClientInfo().getNick() + " :" + message)
+                .build()
+            );
         }
     }
 }

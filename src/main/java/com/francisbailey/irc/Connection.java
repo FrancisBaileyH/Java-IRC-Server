@@ -1,5 +1,6 @@
 package com.francisbailey.irc;
 
+import com.francisbailey.irc.message.SendableMessage;
 import com.francisbailey.irc.mode.ModeSet;
 
 /**

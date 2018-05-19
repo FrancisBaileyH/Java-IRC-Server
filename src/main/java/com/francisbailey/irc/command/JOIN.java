@@ -1,6 +1,14 @@
 package com.francisbailey.irc.command;
 
-import com.francisbailey.irc.*;
+import com.francisbailey.irc.Channel;
+import com.francisbailey.irc.ChannelManager;
+import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.Executable;
+import com.francisbailey.irc.ServerManager;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
+import com.francisbailey.irc.message.ServerMessageBuilder;
+
 import java.util.ArrayList;
 
 /**
@@ -9,33 +17,43 @@ import java.util.ArrayList;
 public class JOIN implements Executable {
 
 
-    public void execute(Connection c, ClientMessage cm, ServerManager instance) {
+    public void execute(Connection connection, ClientMessage clientMessage, ServerManager server) {
 
-        String channel = cm.getParameter(0);
-        ChannelManager channelManager = instance.getChannelManager();
-        String nick = c.getClientInfo().getNick();
-        String message;
-        String replyCode;
+        String channel = clientMessage.getParameter(0);
+        ChannelManager channelManager = server.getChannelManager();
+        String nick = connection.getClientInfo().getNick();
 
         if (!channelManager.hasChannel(channel)) {
-            message = nick + " " + channel + " :No such channel";
-            replyCode = ServerMessage.ERR_NOSUCHCHANNEL;
-            c.send(new ServerMessage(instance.getName(), replyCode, message));
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.ERR_NOSUCHCHANNEL)
+                .andMessage(nick + " " + channel + " :No such channel")
+                .build()
+            );
         }
         else {
             Channel chan = channelManager.getChannel(channel);
             ArrayList<Connection> channelUsers = chan.getUsers();
 
-            if (channelUsers.indexOf(c) <= 0) {
-                chan.addUser(c);
+            if (channelUsers.indexOf(connection) <= 0) {
+                chan.addUser(connection);
 
-                String hostmask = c.getClientInfo().getHostmask();
-                ServerMessage sm = new ServerMessage(hostmask, ServerMessage.RPL_JOIN, chan.getName());
-                chan.broadcast(sm);
+                String hostmask = connection.getClientInfo().getHostmask();
+                chan.broadcast(ServerMessageBuilder
+                    .from(hostmask)
+                    .withReplyCode(ServerMessage.RPL_JOIN)
+                    .andMessage(chan.getName())
+                    .build()
+                );
             }
 
-            c.send(new ServerMessage(instance.getName(), ServerMessage.RPL_TOPIC, nick + " " + channel + " :" + chan.getTopic()));
-            this.sendChannelUsers(c, chan, instance.getName());
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
+                .withReplyCode(ServerMessage.RPL_TOPIC)
+                .andMessage(nick + " " + channel + " :" + chan.getTopic())
+                .build()
+            );
+            this.sendChannelUsers(connection, chan, clientMessage.getCommandOrigin());
         }
     }
 
@@ -54,20 +72,28 @@ public class JOIN implements Executable {
      * After a user successfully joins a channel they must be sent a list of
      * all users currently in the channel
      *
-     * @param conn - The client that joined the channel
-     * @param chan - The channel the client joined
-     * @param serverName - The servername
+     * @param connection - The client that joined the channel
+     * @param channel - The channel the client joined
+     * @param origin - The origin of the message
      */
-    private void sendChannelUsers(Connection conn, Channel chan, String serverName) {
+    private void sendChannelUsers(Connection connection, Channel channel, String origin) {
 
-        ArrayList<String> nicks = chan.getNicks();
-        String chanName = chan.getName();
-        String nick = conn.getClientInfo().getNick();
+        ArrayList<String> nicks = channel.getNicks();
+        String chanName = channel.getName();
+        String nick = connection.getClientInfo().getNick();
 
         for (String chanNick: nicks) {
-            conn.send(new ServerMessage(serverName, ServerMessage.RPL_NAMREPLY, nick + " = " + chanName + " :" + chanNick));
+            connection.send(ServerMessageBuilder.from(origin)
+                .withReplyCode(ServerMessage.RPL_NAMREPLY)
+                .andMessage(nick + " = " + chanName + " :" + chanNick)
+                .build()
+            );
         }
 
-        conn.send(new ServerMessage(serverName, ServerMessage.RPL_ENDOFNAMES, nick + " " + chanName + " :End of NAMES list"));
+        connection.send(ServerMessageBuilder.from(origin)
+            .withReplyCode(ServerMessage.RPL_ENDOFNAMES)
+            .andMessage(nick + " " + chanName + " :End of NAMES list")
+            .build()
+        );
     }
 }

@@ -2,6 +2,8 @@ package com.francisbailey.irc.command;
 
 import com.francisbailey.irc.*;
 import com.francisbailey.irc.command.internal.CHANMODE;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
 import com.francisbailey.irc.mode.Mode;
 
 import org.junit.Before;

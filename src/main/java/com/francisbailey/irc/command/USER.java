@@ -1,32 +1,42 @@
 package com.francisbailey.irc.command;
 
-import com.francisbailey.irc.*;
+import com.francisbailey.irc.Client;
+import com.francisbailey.irc.Connection;
+import com.francisbailey.irc.Executable;
+import com.francisbailey.irc.ServerManager;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
+import com.francisbailey.irc.message.ServerMessageBuilder;
 
 /**
  * Created by fbailey on 16/11/16.
  */
 public class USER implements Executable {
 
-    public void execute(Connection c, ClientMessage cm, ServerManager instance) {
+    public void execute(Connection connection, ClientMessage clientMessage, ServerManager server) {
 
-        String serverName = instance.getName();
+        String serverName = server.getName();
 
-        if (c.isRegistered()) {
-            c.send(new ServerMessage(serverName, ServerMessage.ERR_ALREADYREGISTERED));
+        if (connection.isRegistered()) {
+            connection.send(ServerMessageBuilder
+                .from(serverName)
+                .withReplyCode(ServerMessage.ERR_ALREADYREGISTERED)
+                .build()
+            );
         }
         else {
 
-            String nick = c.getClientInfo().getNick();
-            String username = cm.getParameter(0);
-            String hostName = c.getHostNameInfo();
-            String realName = cm.getParameter(3);
+            String nick = connection.getClientInfo().getNick();
+            String username = clientMessage.getParameter(0);
+            String hostName = connection.getHostNameInfo();
+            String realName = clientMessage.getParameter(3);
 
             if (nick != null) {
 
                 Client ci = new Client(nick, username, hostName, realName);
-                instance.registerConnection(c, ci);
+                server.registerConnection(connection, ci);
 
-                this.sendRegistrationAcknowledgement(c, instance);
+                this.sendRegistrationAcknowledgement(connection, server);
             }
         }
     }
@@ -42,14 +52,19 @@ public class USER implements Executable {
     }
 
 
-    public void sendRegistrationAcknowledgement(Connection c, ServerManager instance) {
+    public void sendRegistrationAcknowledgement(Connection connection, ServerManager server) {
 
-        String nick = c.getClientInfo().getNick();
-        String welcomeMessage = instance.getConfig().getWelcomeMessage() + " " + c.getClientInfo().getHostmask();
+        String nick = connection.getClientInfo().getNick();
+        String welcomeMessage = server.getConfig().getWelcomeMessage() + " " + connection.getClientInfo().getHostmask();
         String message = nick + " :" + welcomeMessage;
-        String serverName = instance.getName();
+        String serverName = server.getName();
 
 
-        c.send(new ServerMessage(serverName, ServerMessage.RPL_WELCOME, message));
+        connection.send(ServerMessageBuilder
+            .from(serverName)
+            .withReplyCode(ServerMessage.RPL_WELCOME)
+            .andMessage(message)
+            .build()
+        );
     }
 }

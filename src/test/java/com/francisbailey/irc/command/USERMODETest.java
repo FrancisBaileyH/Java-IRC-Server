@@ -5,6 +5,8 @@ import com.francisbailey.irc.MockRegisteredConnectionFactory;
 import com.francisbailey.irc.*;
 import com.francisbailey.irc.command.internal.USERMODE;
 import com.francisbailey.irc.exception.MissingCommandParametersException;
+import com.francisbailey.irc.message.ClientMessage;
+import com.francisbailey.irc.message.ServerMessage;
 import com.francisbailey.irc.mode.Mode;
 import org.junit.Before;
 import org.junit.Test;

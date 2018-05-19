@@ -1,6 +1,7 @@
 package com.francisbailey.irc;
 
 import com.francisbailey.irc.exception.ChannelKeyIsSetException;
+import com.francisbailey.irc.message.ServerMessage;
 import com.francisbailey.irc.mode.Mode;
 import com.francisbailey.irc.mode.ModeSet;
 
@@ -86,71 +87,71 @@ public class Channel {
 
     /**
      * Add a user to the channel
-     * @param c
+     * @param connection
      */
-    public synchronized void addUser(Connection c) {
-        if (!this.users.contains(c)) {
-            this.users.add(c);
+    public synchronized void addUser(Connection connection) {
+        if (!this.users.contains(connection)) {
+            this.users.add(connection);
         }
     }
 
 
     /**
      * Remove a user from the channel
-     * @param c
+     * @param connection
      */
-    public synchronized void removeUser(Connection c) {
-        if (this.users.contains(c)) {
-            this.channelUserModes.remove(c);
-            this.users.remove(c);
+    public synchronized void removeUser(Connection connection) {
+        if (this.users.contains(connection)) {
+            this.channelUserModes.remove(connection);
+            this.users.remove(connection);
         }
     }
 
 
     /**
      * Add a mode for a given user
-     * @param c
+     * @param connection
      * @param mode
      */
-    public synchronized void addModeForUser(Connection c, Mode mode) {
-        if (this.hasUser(c)) {
+    public synchronized void addModeForUser(Connection connection, Mode mode) {
+        if (this.hasUser(connection)) {
             ModeSet ms;
 
-            if (this.channelUserModes.containsKey(c)) {
-                ms = this.channelUserModes.get(c);
+            if (this.channelUserModes.containsKey(connection)) {
+                ms = this.channelUserModes.get(connection);
             } else {
                 ms = new ModeSet();
             }
 
             ms.addMode(mode);
-            this.channelUserModes.put(c, ms);
+            this.channelUserModes.put(connection, ms);
         }
     }
 
 
     /**
      * Remove a mode for a given channel user
-     * @param c
+     * @param connection
      * @param mode
      */
-    public synchronized void removeModeForUser(Connection c, Mode mode) {
-        if (this.channelUserModes.containsKey(c)) {
-            ModeSet ms = this.channelUserModes.get(c);
+    public synchronized void removeModeForUser(Connection connection, Mode mode) {
+        if (this.channelUserModes.containsKey(connection)) {
+            ModeSet ms = this.channelUserModes.get(connection);
             ms.removeMode(mode);
-            this.channelUserModes.put(c, ms);
+            this.channelUserModes.put(connection, ms);
         }
     }
 
 
     /**
      * Check if a channel user has a given mode
-     * @param c
+     * @param connection
      * @param mode
      * @return
      */
-    public synchronized boolean hasModeForUser(Connection c, Mode mode) {
-        if (this.channelUserModes.containsKey(c)) {
-            ModeSet ms = this.channelUserModes.get(c);
+    public synchronized boolean hasModeForUser(Connection connection, Mode mode) {
+        if (this.channelUserModes.containsKey(connection)) {
+            ModeSet ms = this.channelUserModes.get(connection);
 
             return ms.hasMode(mode);
         }
@@ -161,11 +162,11 @@ public class Channel {
 
     /**
      * Get all channel modes for a user
-     * @param c
+     * @param connection
      * @return
      */
-    public synchronized ModeSet getModesForUser(Connection c) {
-        return this.channelUserModes.get(c);
+    public synchronized ModeSet getModesForUser(Connection connection) {
+        return this.channelUserModes.get(connection);
     }
 
 
@@ -196,11 +197,11 @@ public class Channel {
 
     /**
      * Check for the existence of a user in a channel
-     * @param c
+     * @param connection
      * @return
      */
-    public synchronized boolean hasUser(Connection c) {
-        return this.users.contains(c);
+    public synchronized boolean hasUser(Connection connection) {
+        return this.users.contains(connection);
     }
 
 
@@ -265,23 +266,23 @@ public class Channel {
 
     /**
      * Send a message to all users on the channel
-     * @param sm
+     * @param serverMessage
      */
-    public synchronized void broadcast(ServerMessage sm) {
-        this.broadcast(sm, null);
+    public synchronized void broadcast(ServerMessage serverMessage) {
+        this.broadcast(serverMessage, null);
     }
 
 
     /**
      * Broadcast message to all users on channel except
      * those in the exclusion list.
-     * @param sm
+     * @param serverMessage
      * @param exclude
      */
-    public synchronized void broadcast(ServerMessage sm, ArrayList<Connection> exclude) {
+    public synchronized void broadcast(ServerMessage serverMessage, ArrayList<Connection> exclude) {
         for (Connection c: this.users) {
             if (exclude == null || !exclude.contains(c)) {
-                c.send(sm);
+                c.send(serverMessage);
             }
         }
     }
