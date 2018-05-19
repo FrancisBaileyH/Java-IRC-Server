@@ -52,7 +52,7 @@ public class PART implements Executable {
     }
 
 
-    public Boolean canExecuteUnregistered() {
+    public boolean canExecuteUnregistered() {
         return false;
     }
 

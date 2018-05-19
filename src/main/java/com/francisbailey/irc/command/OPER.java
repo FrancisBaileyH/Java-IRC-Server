@@ -61,7 +61,7 @@ public class OPER implements Executable {
 
 
     @Override
-    public Boolean canExecuteUnregistered() {
+    public boolean canExecuteUnregistered() {
         return false;
     }
 }

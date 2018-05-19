@@ -74,7 +74,7 @@ public class NICK implements Executable {
 
 
 
-    public Boolean canExecuteUnregistered() {
+    public boolean canExecuteUnregistered() {
         return true;
     }
 

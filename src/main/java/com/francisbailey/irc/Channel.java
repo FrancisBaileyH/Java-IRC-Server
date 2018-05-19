@@ -256,6 +256,16 @@ public class Channel {
 
 
     /**
+     * Set the channel topic
+     * @param topic
+     * @return
+     */
+    public String setTopic(String topic) {
+        return this.topic;
+    }
+
+
+    /**
      * Get the channel name
      * @return
      */

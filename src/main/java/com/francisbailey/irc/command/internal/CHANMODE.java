@@ -313,7 +313,7 @@ public class CHANMODE implements Executable {
 
 
     @Override
-    public Boolean canExecuteUnregistered() {
+    public boolean canExecuteUnregistered() {
         return false;
     }
 }

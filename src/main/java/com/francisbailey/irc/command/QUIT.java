@@ -49,7 +49,7 @@ public class QUIT implements Executable {
     }
 
 
-    public Boolean canExecuteUnregistered() {
+    public boolean canExecuteUnregistered() {
         return false;
     }
 }

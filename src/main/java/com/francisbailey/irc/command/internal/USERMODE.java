@@ -15,40 +15,40 @@ import com.francisbailey.irc.mode.strategy.UserModeStrategy;
 public class USERMODE implements Executable {
 
     @Override
-    public void execute(Connection c, ClientMessage cm, ServerManager instance) {
+    public void execute(Connection connection, ClientMessage clientMessage, ServerManager server) {
 
-        String targetNick = cm.getParameter(0);
-        String nick = c.getClientInfo().getNick();
+        String targetNick = clientMessage.getParameter(0);
+        String nick = connection.getClientInfo().getNick();
 
-        Connection target = instance.findConnectionByNick(targetNick);
+        Connection target = server.findConnectionByNick(targetNick);
 
         // Check if nick matches user
-        if (!targetNick.equals(nick) && !c.getModes().hasMode(Mode.OPERATOR)) {
-              c.send(ServerMessageBuilder
-                  .from(instance.getName())
+        if (!targetNick.equals(nick) && !connection.getModes().hasMode(Mode.OPERATOR)) {
+              connection.send(ServerMessageBuilder
+                  .from(server.getName())
                   .withReplyCode(ServerMessage.ERR_USERSDONTMATCH)
                   .andMessage(nick + " :Can't change mode for other users")
                   .build()
             );
         }
         else if (target == null) {
-            c.send(ServerMessageBuilder
-                .from(instance.getName())
+            connection.send(ServerMessageBuilder
+                .from(server.getName())
                 .withReplyCode(ServerMessage.ERR_NOSUCHNICK)
                 .andMessage(nick + " :No such user")
                 .build()
             );
         }
-        else if (cm.getParameterCount() < 2) {
-            this.sendUsermode(c, target, instance);
+        else if (clientMessage.getParameterCount() < 2) {
+            this.sendUsermode(connection, target, server);
         }
         else {
-            String modeAction = cm.getParameter(1);
+            String modeAction = clientMessage.getParameter(1);
 
             if (modeAction.length() != 2 || !Mode.userModes.containsKey(modeAction.substring(1))
             || (!modeAction.startsWith("+") && !modeAction.startsWith("-"))) {
-                c.send(ServerMessageBuilder
-                    .from(instance.getName())
+                connection.send(ServerMessageBuilder
+                    .from(server.getName())
                     .withReplyCode(ServerMessage.ERR_UMODEUNKNOWNFLAG)
                     .andMessage(nick + " :Unknown umode flag")
                     .build()
@@ -58,16 +58,16 @@ public class USERMODE implements Executable {
                 String flag = modeAction.substring(1);
 
                 Mode mode = Mode.userModes.get(flag);
-                UserModeStrategy strategy = instance.getUserModeStrategy(mode);
+                UserModeStrategy strategy = server.getUserModeStrategy(mode);
 
                 if (operation.equals("+")) {
-                    strategy.addMode(c, target, mode);
+                    strategy.addMode(connection, target, mode);
                 }
                 else if (operation.equals("-")) {
-                    strategy.removeMode(c, target, mode);
+                    strategy.removeMode(connection, target, mode);
                 }
 
-                this.sendUsermode(c, target, instance);
+                this.sendUsermode(connection, target, server);
             }
         }
     }
@@ -97,7 +97,7 @@ public class USERMODE implements Executable {
 
 
     @Override
-    public Boolean canExecuteUnregistered() {
+    public boolean canExecuteUnregistered() {
         return false;
     }
 }

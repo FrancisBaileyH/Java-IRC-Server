@@ -47,7 +47,7 @@ public class USER implements Executable {
     }
 
 
-    public Boolean canExecuteUnregistered() {
+    public boolean canExecuteUnregistered() {
         return true;
     }
 
