@@ -16,7 +16,7 @@ Work in progress IRC server
 - [x] Implement Channel Modes & Update User Modes
 - [ ] NAMES command
 - [ ] KICK command
-- [ ] TOPIC command
+- [x] TOPIC command
 - [ ] INVITE command
 - [ ] Ban Masks
 - [ ] Channel creation

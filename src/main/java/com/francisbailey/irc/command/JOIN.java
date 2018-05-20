@@ -54,6 +54,9 @@ public class JOIN implements Executable {
                 .build()
             );
             this.sendChannelUsers(connection, chan, clientMessage.getCommandOrigin());
+            TOPIC topicCommand = new TOPIC();
+
+            topicCommand.sendTopic(server.getName(), connection, chan);
         }
     }
 

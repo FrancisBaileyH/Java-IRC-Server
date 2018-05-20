@@ -52,6 +52,9 @@ public class TOPIC implements Executable {
                 .build()
             );
         }
+        else if (channel.hasMode(Mode.SECRET) || channel.hasMode(Mode.PRIVATE)) {
+            logger().info("Channel: {} is marked as secret/private. Ignoring TOPIC command", channel.getName());
+        }
         else if (!channel.hasUser(connection)) {
             connection.send(ServerMessageBuilder
                 .from(server.getName())
@@ -60,13 +63,8 @@ public class TOPIC implements Executable {
             );
         }
         else {
-            if (channel.hasMode(Mode.SECRET) || channel.hasMode(Mode.PRIVATE)) {
-                logger().info("Channel: {} is marked as secret/private. Ignoring TOPIC command", channel.getName());
-                return;
-            }
-
             if (clientMessage.getParameterCount() < 2) {
-                this.sendTopic(server.getName(), connection, channel);
+                this.sendTopic(channel.getTopicAuthor(), connection, channel);
             }
             else {
                 ModeSet userModes = connection.getModes();
@@ -89,10 +87,11 @@ public class TOPIC implements Executable {
                 }
                 else {
                     String topic = clientMessage.getParameter(1);
-                    channel.setTopic(topic);
+                    String author = connection.getClientInfo().getHostmask();
+                    channel.setTopic(topic, author);
 
                     for (Connection user: channel.getUsers()) {
-                        this.sendTopic(connection.getClientInfo().getHostmask(), user, channel);
+                        this.sendTopic(author, user, channel);
                     }
                 }
             }
@@ -103,7 +102,6 @@ public class TOPIC implements Executable {
     /**
      * RFC2812 - 5.1
      * If no topic is present a RPL_NOTOPIC must be sent
-     *
      *
      * @param origin
      * @param connection
@@ -116,17 +114,17 @@ public class TOPIC implements Executable {
 
         if (topic == null || topic.equals("")) {
             message = ServerMessageBuilder
-                    .from(origin)
-                    .withReplyCode(ServerMessage.RPL_NOTOPIC)
-                    .andMessage(channel.getName() + " :No topic is set")
-                    .build();
+                .from(origin)
+                .withReplyCode(ServerMessage.RPL_NOTOPIC)
+                .andMessage(channel.getName() + " :No topic is set")
+                .build();
         }
         else {
             message = ServerMessageBuilder
-                    .from(origin)
-                    .withReplyCode(ServerMessage.RPL_TOPIC)
-                    .andMessage(channel.getName() + " :" + topic)
-                    .build();
+                .from(origin)
+                .withReplyCode(ServerMessage.RPL_TOPIC)
+                .andMessage(channel.getName() + " :" + topic)
+                .build();
         }
 
         connection.send(message);

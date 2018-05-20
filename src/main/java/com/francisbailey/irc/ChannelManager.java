@@ -47,6 +47,11 @@ public class ChannelManager {
     }
 
 
+    public void removeChannel(String name) {
+        this.channels.remove(name);
+    }
+
+
     /**
      * Channels names are strings (beginning with a '&', '#', '+' or '!'
      * character) of length up to fifty (50) characters.  Channel names are

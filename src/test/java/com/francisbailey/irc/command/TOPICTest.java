@@ -23,7 +23,10 @@ public class TOPICTest extends CommandTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        this.testChannel = new Channel("#testchannel", "test topic");
+        String channelName = "#testchannel";
+
+        this.serverManager.getChannelManager().removeChannel(channelName);
+        this.testChannel = new Channel(channelName, "test topic");
         this.serverManager.getChannelManager().addChannel(this.testChannel);
         this.testChannel.clearModes();
     }
@@ -86,21 +89,43 @@ public class TOPICTest extends CommandTest {
 
 
     @Test
-    public void testChannelWithTopicListing() {
-//        MockRegisteredConnectionFactory connection =
+    public void testChannelWithTopicListing() throws Exception {
+        String newTopic = "Foobar Topic";
 
+        MockConnection connectionA = MockRegisteredConnectionFactory.build();
+        MockConnection connectionB = MockRegisteredConnectionFactory.build();
+
+        this.testChannel.addUser(connectionA);
+        this.testChannel.addUser(connectionB);
+
+        Executable exe = new TOPIC();
+        ClientMessage clientMessage = this.commandParser.parse("TOPIC " + this.testChannel.getName() + " :" + newTopic);
+
+        exe.execute(connectionA, clientMessage, this.serverManager);
+
+        assertEquals(this.testChannel.getTopic(), newTopic);
+        assertEquals(connectionA.getLastOutput().getServerReply(), ServerMessage.RPL_TOPIC);
+        assertEquals(connectionB.getLastOutput().getServerReply(), ServerMessage.RPL_TOPIC);
+        assertEquals(connectionB.getLastOutput().getOrigin(), connectionA.getClientInfo().getHostmask());
     }
 
 
     @Test
-    public void testChannelWithoutTopicListing() {
+    public void testChannelWithoutTopicListing() throws Exception {
+         MockConnection connectionA = MockRegisteredConnectionFactory.build();
+        MockConnection connectionB = MockRegisteredConnectionFactory.build();
 
+        this.testChannel.addUser(connectionA);
+        this.testChannel.addUser(connectionB);
+
+        Executable exe = new TOPIC();
+        ClientMessage clientMessage = this.commandParser.parse("TOPIC " + this.testChannel.getName() + " :");
+
+        exe.execute(connectionA, clientMessage, this.serverManager);
+
+        assertEquals(this.testChannel.getTopic(), "");
+        assertEquals(connectionA.getLastOutput().getServerReply(), ServerMessage.RPL_NOTOPIC);
+        assertEquals(connectionB.getLastOutput().getServerReply(), ServerMessage.RPL_NOTOPIC);
+        assertEquals(connectionB.getLastOutput().getOrigin(), connectionA.getClientInfo().getHostmask());
     }
-
-
-    @Test
-    public void testSetChannelTopic() {
-
-    }
-
 }
