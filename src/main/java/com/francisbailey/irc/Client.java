@@ -5,7 +5,7 @@ package com.francisbailey.irc;
  */
 public class Client {
 
-    private String nick = "*";
+    private String nick;
     private String username;
     private String hostName;
     private String realName;

@@ -50,7 +50,7 @@ public class PRIVMSG implements Executable {
 
 
 
-    public Boolean canExecuteUnregistered() {
+    public boolean canExecuteUnregistered() {
         return false;
     }
 

@@ -90,6 +90,7 @@ public class Server implements ConnectionDelegate, ServerManager, Loggable {
         this.userModes.put(Mode.INVISIBLE,             standardUserModeStrategy);
 
         try {
+            logger().info("Listening on: {}", port);
             this.socket = new ServerSocket(port);
         }
         catch (IOException e) {
@@ -159,7 +160,7 @@ public class Server implements ConnectionDelegate, ServerManager, Loggable {
 
         try {
             ClientMessage cm = this.parser.parse(command);
-            logger().debug("{} {}", c.getId(), cm.getMessage());
+            logger().debug(cm.getMessage());
             Executable e = this.cf.build(cm);
 
             if (cm.getParameterCount() < e.getMinimumParams()) {

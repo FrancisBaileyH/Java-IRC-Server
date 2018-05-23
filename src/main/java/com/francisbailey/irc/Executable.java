@@ -7,7 +7,7 @@ import com.francisbailey.irc.message.ClientMessage;
  */
 public interface Executable extends Loggable {
 
-    public void execute(Connection c, ClientMessage cm, ServerManager instance);
+    public void execute(Connection connection, ClientMessage clientMessage, ServerManager server);
     public int getMinimumParams();
-    public Boolean canExecuteUnregistered();
+    public boolean canExecuteUnregistered();
 }

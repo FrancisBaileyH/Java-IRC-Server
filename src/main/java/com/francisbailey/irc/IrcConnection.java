@@ -57,8 +57,8 @@ public class IrcConnection implements Runnable, Connection, Loggable {
             this.socket.close();
         }
         catch (IOException e) {
-            logger().error("Connection: {} terminated unexpectedly", this.id);
-            logger().error("Cleaning up connection: {}", this.id);
+            logger().error("Connection terminated unexpectedly");
+            logger().error("Cleaning up connection");
             logger().debug(e.getStackTrace());
 
             this.delegate.closeConnection(this);

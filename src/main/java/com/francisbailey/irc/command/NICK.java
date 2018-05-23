@@ -24,45 +24,52 @@ public class NICK implements Executable {
     public void execute(Connection connection, ClientMessage clientMessage, ServerManager server) {
 
         String nick = clientMessage.getParameter(0);
+        String oldHostmask = connection.getClientInfo().getHostmask();
 
-        if (server.findConnectionByNick(nick) != null) {
-            connection.send(ServerMessageBuilder
-                .from(server.getName())
-                .withReplyCode(ServerMessage.ERR_NICKNAMEINUSE)
-                .andMessage(connection.getClientInfo().getNick() + " " + nick + " :Nickname already in use")
-                .build()
-            );
-        }
-        else if (!isValidNick(nick)) {
+        if (!isValidNick(nick)) {
             connection.send(ServerMessageBuilder
                 .from(server.getName())
                 .withReplyCode(ServerMessage.ERR_ERRONEOUSNICKNAME)
                 .build()
             );
         }
-        else if (connection.isRegistered()) {
-            String oldHostmask = connection.getClientInfo().getHostmask();
-            connection.getClientInfo().setNick(nick);
+        else {
+            synchronized(this) {
+                if (server.findConnectionByNick(nick) != null) {
+                    connection.send(ServerMessageBuilder
+                            .from(server.getName())
+                            .withReplyCode(ServerMessage.ERR_NICKNAMEINUSE)
+                            .andMessage(connection.getClientInfo().getNick() + " " + nick + " :Nickname already in use")
+                            .build()
+                    );
 
-            ArrayList<Channel> channels = server.getChannelManager().getChannelsByUser(connection);
-            ArrayList<Connection> exclude = new ArrayList<>();
-            exclude.add(connection);
+                    return;
+                }
 
-            for (Channel chan: channels) {
-                chan.broadcast(ServerMessageBuilder
+                connection.getClientInfo().setNick(nick);
+            }
+
+            if (connection.isRegistered()) {
+                ArrayList<Channel> channels = server.getChannelManager().getChannelsByUser(connection);
+                ArrayList<Connection> exclude = new ArrayList<>();
+                exclude.add(connection);
+
+                for (Channel chan: channels) {
+                    chan.broadcast(ServerMessageBuilder
+                        .from(oldHostmask)
+                        .withReplyCode(ServerMessage.RPL_NICK)
+                        .andMessage(nick)
+                        .build(),
+                    exclude);
+                }
+
+                connection.send(ServerMessageBuilder
                     .from(oldHostmask)
                     .withReplyCode(ServerMessage.RPL_NICK)
                     .andMessage(nick)
-                    .build(),
-                exclude);
+                    .build()
+                );
             }
-
-            connection.send(ServerMessageBuilder
-                .from(oldHostmask)
-                .withReplyCode(ServerMessage.RPL_NICK)
-                .andMessage(nick)
-                .build()
-            );
         }
     }
 
@@ -74,7 +81,7 @@ public class NICK implements Executable {
 
 
 
-    public Boolean canExecuteUnregistered() {
+    public boolean canExecuteUnregistered() {
         return true;
     }
 

@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 public class Channel {
 
     private String topic;
+    private String topicAuthor;
     private String name;
 
     private int userLimit;
@@ -36,7 +37,7 @@ public class Channel {
         this.users = new ArrayList<>();
         this.modes = new ModeSet();
         this.channelUserModes = new HashMap<>();
-
+        this.topicAuthor = "Server";
         this.masks = new HashMap<>();
     }
 
@@ -252,6 +253,22 @@ public class Channel {
      */
     public String getTopic() {
         return this.topic;
+    }
+
+
+    public String getTopicAuthor() {
+        return this.topicAuthor;
+    }
+
+
+    /**
+     * Set the channel topic
+     * @param topic
+     * @return
+     */
+    public void setTopic(String topic, String topicAuthor) {
+        this.topic = topic;
+        this.topicAuthor = topicAuthor;
     }
 
 
