@@ -64,7 +64,7 @@ public class TOPIC implements Executable {
         }
         else {
             if (clientMessage.getParameterCount() < 2) {
-                this.sendTopic(channel.getTopicAuthor(), connection, channel);
+                this.sendTopic("", connection, channel);
             }
             else {
                 ModeSet userModes = connection.getModes();
@@ -91,7 +91,7 @@ public class TOPIC implements Executable {
                     channel.setTopic(topic, author);
 
                     for (Connection user: channel.getUsers()) {
-                        this.sendTopic(author, user, channel);
+                        this.sendTopicChange(author, user, channel);
                     }
                 }
             }
@@ -110,24 +110,43 @@ public class TOPIC implements Executable {
     public void sendTopic(String origin, Connection connection, Channel channel) {
 
         String topic = channel.getTopic();
+        String nick = connection.getClientInfo().getNick();
         ServerMessage message;
 
         if (topic == null || topic.equals("")) {
             message = ServerMessageBuilder
                 .from(origin)
                 .withReplyCode(ServerMessage.RPL_NOTOPIC)
-                .andMessage(channel.getName() + " :No topic is set")
+                .andMessage(nick + " " + channel.getName() + " :No topic is set")
                 .build();
         }
         else {
             message = ServerMessageBuilder
                 .from(origin)
                 .withReplyCode(ServerMessage.RPL_TOPIC)
-                .andMessage(channel.getName() + " :" + topic)
+                .andMessage(nick + " " + channel.getName() + " :" + topic)
                 .build();
         }
 
         connection.send(message);
+    }
+
+
+    /**
+     * Not defined in any IRC RFC's, but in order to relay that
+     * a change occurred, we pass the command on to clients/servers
+     *
+     * @param origin
+     * @param connection
+     * @param channel
+     */
+    public void sendTopicChange(String origin, Connection connection, Channel channel) {
+        connection.send(ServerMessageBuilder
+            .from(origin)
+            .withReplyCode(ServerMessage.RPL_TOPIC_CHANGE)
+            .andMessage(channel.getName() + " :" + channel.getTopic())
+            .build()
+        );
     }
 
 

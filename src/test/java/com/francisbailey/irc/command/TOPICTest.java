@@ -104,8 +104,8 @@ public class TOPICTest extends CommandTest {
         exe.execute(connectionA, clientMessage, this.serverManager);
 
         assertEquals(this.testChannel.getTopic(), newTopic);
-        assertEquals(connectionA.getLastOutput().getServerReply(), ServerMessage.RPL_TOPIC);
-        assertEquals(connectionB.getLastOutput().getServerReply(), ServerMessage.RPL_TOPIC);
+        assertEquals(connectionA.getLastOutput().getServerReply(), ServerMessage.RPL_TOPIC_CHANGE);
+        assertEquals(connectionB.getLastOutput().getServerReply(), ServerMessage.RPL_TOPIC_CHANGE);
         assertEquals(connectionB.getLastOutput().getOrigin(), connectionA.getClientInfo().getHostmask());
     }
 
@@ -124,8 +124,8 @@ public class TOPICTest extends CommandTest {
         exe.execute(connectionA, clientMessage, this.serverManager);
 
         assertEquals(this.testChannel.getTopic(), "");
-        assertEquals(connectionA.getLastOutput().getServerReply(), ServerMessage.RPL_NOTOPIC);
-        assertEquals(connectionB.getLastOutput().getServerReply(), ServerMessage.RPL_NOTOPIC);
+        assertEquals(connectionA.getLastOutput().getServerReply(), ServerMessage.RPL_TOPIC_CHANGE);
+        assertEquals(connectionB.getLastOutput().getServerReply(), ServerMessage.RPL_TOPIC_CHANGE);
         assertEquals(connectionB.getLastOutput().getOrigin(), connectionA.getClientInfo().getHostmask());
     }
 }

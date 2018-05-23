@@ -87,9 +87,7 @@ public class ServerMessage implements SendableMessage {
     public static final String RPL_UNIQOPIS = "325";
     public static final String RPL_CHANNELMODEIS = "324";
     public static final String RPL_NOTOPIC = "331";
-    // RFC 2812 states that RPL_TOPIC is: "332", however
-    // No IRC client actually recognizes 332
-    public static final String RPL_TOPIC = "TOPIC";
+    public static final String RPL_TOPIC = "332";
     public static final String RPL_INVITING = "341";
     public static final String RPL_SUMMONING = "342";
     public static final String RPL_INVITELIST = "346";
@@ -154,6 +152,7 @@ public class ServerMessage implements SendableMessage {
     public static final String RPL_PRIVMSG = "PRIVMSG";
     public static final String RPL_NICK = "NICK";
     public static final String RPL_QUIT = "QUIT";
+    public static final String RPL_TOPIC_CHANGE = "TOPIC";
     
     private String replyCode;
     private String message;

@@ -47,12 +47,6 @@ public class JOIN implements Executable {
                 );
             }
 
-            connection.send(ServerMessageBuilder
-                .from(server.getName())
-                .withReplyCode(ServerMessage.RPL_TOPIC)
-                .andMessage(nick + " " + channel + " :" + chan.getTopic())
-                .build()
-            );
             this.sendChannelUsers(connection, chan, clientMessage.getCommandOrigin());
             TOPIC topicCommand = new TOPIC();
 
