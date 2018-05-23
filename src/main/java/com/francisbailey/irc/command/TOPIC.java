@@ -90,6 +90,8 @@ public class TOPIC implements Executable {
                     String author = connection.getClientInfo().getHostmask();
                     channel.setTopic(topic, author);
 
+                    logger().info("{} set topic to: {}", author, topic);
+
                     for (Connection user: channel.getUsers()) {
                         this.sendTopicChange(author, user, channel);
                     }
